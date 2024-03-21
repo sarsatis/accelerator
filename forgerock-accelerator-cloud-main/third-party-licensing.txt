@@ -1,0 +1,26 @@
+THIRD-PARTY SOFTWARE
+
+This product, solution or service ("Midships Cloud ForgeRock Accelerator") contains third-party software components listed in this document.
+These components are Open Source Software licensed under a license approved by the Open Source Initiative
+(www.opensource.org) or similar licenses as determined by Midships and/or commercial or freeware software
+components. The third-party components and licenses are the following:
+
+#Software    						#License file
+
+Denian       						https://www.debian.org/legal/licenses/
+Forgerock Access Manager    				https://www.forgerock.com/terms
+Forgerock Directory Services				https://www.forgerock.com/terms
+Forgerock Amster		 			https://www.forgerock.com/terms
+Oracle Java Development Kit		    		https://www.oracle.com/technetwork/java/javase/overview/oracle-jdk-faqs.html
+Apache Tomcat 		 				https://www.apache.org/licenses/
+OpenSSL 						https://www.openssl.org/source/license.html
+OpenSSH 						https://github.com/openssh/openssh-portable/blob/1b11ea7c58cd5c59838b5fa574cd456d6047b2d4/LICENCE#L10
+unzip 	 						http://infozip.sourceforge.net/license.html
+jq 		 					https://creativecommons.org/licenses/by/3.0/
+sed 							https://www.gnu.org/licenses/licenses.html
+tar 	 						https://www.gnu.org/licenses/licenses.html
+curl 							https://github.com/curl/curl/blob/master/COPYING
+wget 							https://www.gnu.org/licenses/gpl-3.0.html
+Helm 	 						https://github.com/helm/helm/blob/master/LICENSE
+Helm unittest                   https://github.com/helm-unittest/helm-unittest/blob/main/LICENSE
+CSP CLI 						Visit the corresponding CLI webpage for licensing terms (GCP,Azure,AliCloud,OracleCloud,AWS)

@@ -1,0 +1,43 @@
+{
+  "heap": [
+    {
+      "name": "ClientIPHeaderHandler",
+      "type": "Chain",
+      "config": {
+        "filters": [
+          {
+            "type": "HeaderFilter",
+            "config": {
+              "messageType": "REQUEST",
+              "add": {
+                "X-Forwarded-For": [
+                  "${contexts.client.remoteAddress}"
+                ]
+              }
+            }
+          }
+        ],
+        "handler": {
+          "name": "CaptureClientHandler",
+          "type": "ClientHandler",
+          "capture": "all"
+        }
+      }
+    }
+  ],
+  "handler": {
+    "type": "Chain",
+    "config": {
+      "connectionTimeout": "30 seconds",
+      "soTimeout": "30 seconds",
+      "filters": [
+
+      ],
+      "handler": {
+        "type": "Router",
+        "name": "_router",
+        "capture": "all"
+      }
+    }
+  }
+}

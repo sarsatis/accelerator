@@ -1,0 +1,74 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+global:
+  namespace: forgerock
+  envType: dev
+  clusterId: dc1
+  k8sLocation: gcp
+  baseNameUS: forgerock-user-store
+  baseNameTS: forgerock-token-store
+  baseNameRS: forgerock-repl-server
+  baseNameAPS: forgerock-app-policy-store
+  baseNameIDM: forgerock-idm
+  baseNameIG: forgerock-ig
+  baseNameAM: forgerock-access-manager
+  serviceNameUS: forgerock-user-store
+  serviceNameTS: forgerock-token-store
+  serviceNameRS: forgerock-repl-server
+  serviceNameAPS: forgerock-app-policy-store
+  serviceNameIDM: forgerock-idm
+  serviceNameIG: forgerock-ig
+  serviceNameAM: forgerock-access-manager
+
+svc-forgerock-repl-server:
+  replserver:
+    podName: "{{ .Values.global.baseNameRS }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameRS }}"
+
+svc-forgerock-user-store:
+  userstore:
+    podName: "{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameUS }}"
+
+svc-forgerock-token-store:
+  tokenstore:
+    podName: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameTS }}"
+
+svc-forgerock-app-policy-store:
+  aps:
+    podName: "{{ .Values.global.baseNameAPS }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameAPS }}"
+
+svc-forgerock-access-manager:
+  am:
+    podName: "{{ .Values.global.baseNameAM }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameAM }}"
+
+svc-forgerock-idm:
+  idm:
+    podName: "{{ .Values.global.baseNameIDM }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameIDM }}"
+
+svc-forgerock-ig:
+  ig:
+    podName: "{{ .Values.global.baseNameIG }}-{{ .Values.global.clusterId }}"
+    serviceName: "{{ .Values.global.serviceNameIG }}"

@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  div.section
+    if diffs
+      div.section-head STATIC CONFIGURATIONS (#{diffs.searchType})
+      if diffs.filesCount === 0
+        div.center No difference found in static files
+      else
+        -var fileNum = 0
+        table
+          thead
+            tr
+              th.center #
+              th.center.column2 Diff Type
+              th.left File Path
+          tbody
+            if diffs.data
+              each diff in diffs.data
+                -fileNum = fileNum + 1
+                tr.row100.body
+                  td.center #{fileNum}
+                  td.center #{diff.diffType}
+                  td.left #{diff.path}
+    else
+      div.center No difference found. Something went wrong. See logs for details.

@@ -1,0 +1,190 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ tpl .Values.replserver.us.serviceName . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.replserver.us.podName . }}"
+    deploymentTime: {{ now | date "20060102T150405" | quote }}
+spec:
+  clusterIP: None
+  selector:
+    app: "{{ tpl .Values.replserver.us.podName . }}"
+  ports:
+  - name: ldap
+    port: {{ .Values.replserver.us.portLdap }}
+    targetPort: {{ .Values.replserver.us.portLdap }}
+    protocol: TCP
+  - name: ldaps
+    port: {{ .Values.replserver.us.portLdaps }}
+    targetPort: {{ .Values.replserver.us.portLdaps }}
+    protocol: TCP
+  - name: http
+    port: {{ .Values.replserver.us.portHttp }}
+    targetPort: {{ .Values.replserver.us.portHttp }}
+    protocol: TCP
+  - name: https
+    port: {{ .Values.replserver.us.portHttps }}
+    targetPort: {{ .Values.replserver.us.portHttps }}
+    protocol: TCP
+  - name: admin
+    port: {{ .Values.replserver.us.portAdmin }}
+    targetPort: {{ .Values.replserver.us.portAdmin }}
+    protocol: TCP
+  - name: replication
+    port: {{ .Values.replserver.us.portReplication }}
+    targetPort: {{ .Values.replserver.us.portReplication }}
+    protocol: TCP
+{{- if .Values.replserver.us.svc_ip1 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ tpl .Values.replserver.us.serviceName . }}-0"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.replserver.us.podName . }}"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  # Routes traffic only to node that matches selector. Removing any additional hops.
+  selector:
+    statefulset.kubernetes.io/pod-name: "{{ tpl .Values.replserver.us.podName . }}-0"
+  ports:
+  - name: ldap
+    port: {{ .Values.replserver.us.portLdap }}
+    targetPort: {{ .Values.replserver.us.portLdap }}
+    protocol: TCP
+  - name: ldaps
+    port: {{ .Values.replserver.us.portLdaps }}
+    targetPort: {{ .Values.replserver.us.portLdaps }}
+    protocol: TCP
+  - name: http
+    port: {{ .Values.replserver.us.portHttp }}
+    targetPort: {{ .Values.replserver.us.portHttp }}
+    protocol: TCP
+  - name: https
+    port: {{ .Values.replserver.us.portHttps }}
+    targetPort: {{ .Values.replserver.us.portHttps }}
+    protocol: TCP
+  - name: admin
+    port: {{ .Values.replserver.us.portAdmin }}
+    targetPort: {{ .Values.replserver.us.portAdmin }}
+    protocol: TCP
+  - name: replication
+    port: {{ .Values.replserver.us.portReplication }}
+    targetPort: {{ .Values.replserver.us.portReplication }}
+    protocol: TCP
+{{- if and .Values.replserver.us.svc_ip1 (eq (lower .Values.global.k8sLocation ) ("gcp" )) }}
+  loadBalancerIP: "{{ .Values.replserver.us.svc_ip1 }}"
+{{- end }}
+{{- end }}
+{{- if .Values.replserver.us.svc_ip2 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ tpl .Values.replserver.us.serviceName . }}-1"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.replserver.us.podName . }}"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  # Routes traffic only to node that matches selector. Removing any additional hops.
+  selector:
+    statefulset.kubernetes.io/pod-name: "{{ tpl .Values.replserver.us.podName . }}-1"
+  ports:
+  - name: ldap
+    port: {{ .Values.replserver.us.portLdap }}
+    targetPort: {{ .Values.replserver.us.portLdap }}
+    protocol: TCP
+  - name: ldaps
+    port: {{ .Values.replserver.us.portLdaps }}
+    targetPort: {{ .Values.replserver.us.portLdaps }}
+    protocol: TCP
+  - name: http
+    port: {{ .Values.replserver.us.portHttp }}
+    targetPort: {{ .Values.replserver.us.portHttp }}
+    protocol: TCP
+  - name: https
+    port: {{ .Values.replserver.us.portHttps }}
+    targetPort: {{ .Values.replserver.us.portHttps }}
+    protocol: TCP
+  - name: admin
+    port: {{ .Values.replserver.us.portAdmin }}
+    targetPort: {{ .Values.replserver.us.portAdmin }}
+    protocol: TCP
+  - name: replication
+    port: {{ .Values.replserver.us.portReplication }}
+    targetPort: {{ .Values.replserver.us.portReplication }}
+    protocol: TCP
+{{- if and .Values.replserver.us.svc_ip2 (eq (lower .Values.global.k8sLocation ) ("gcp" )) }}
+  loadBalancerIP: "{{ .Values.replserver.us.svc_ip2 }}"
+{{- end }}
+{{- end }}
+{{- if .Values.replserver.us.svc_ip3 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ tpl .Values.replserver.us.serviceName . }}-2"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.replserver.us.podName . }}"
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  # Routes traffic only to node that matches selector. Removing any additional hops.
+  selector:
+    statefulset.kubernetes.io/pod-name: "{{ tpl .Values.replserver.us.podName . }}-2"
+  ports:
+  - name: ldap
+    port: {{ .Values.replserver.us.portLdap }}
+    targetPort: {{ .Values.replserver.us.portLdap }}
+    protocol: TCP
+  - name: ldaps
+    port: {{ .Values.replserver.us.portLdaps }}
+    targetPort: {{ .Values.replserver.us.portLdaps }}
+    protocol: TCP
+  - name: http
+    port: {{ .Values.replserver.us.portHttp }}
+    targetPort: {{ .Values.replserver.us.portHttp }}
+    protocol: TCP
+  - name: https
+    port: {{ .Values.replserver.us.portHttps }}
+    targetPort: {{ .Values.replserver.us.portHttps }}
+    protocol: TCP
+  - name: admin
+    port: {{ .Values.replserver.us.portAdmin }}
+    targetPort: {{ .Values.replserver.us.portAdmin }}
+    protocol: TCP
+  - name: replication
+    port: {{ .Values.replserver.us.portReplication }}
+    targetPort: {{ .Values.replserver.us.portReplication }}
+    protocol: TCP
+{{- if and .Values.replserver.us.svc_ip3 (eq (lower .Values.global.k8sLocation ) ("gcp" )) }}
+  loadBalancerIP: "{{ .Values.replserver.us.svc_ip3 }}"
+{{- end }}
+{{- end }}

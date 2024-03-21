@@ -1,0 +1,23 @@
+install-openam \
+   --serverUrl http://localhost:8080/am \
+   --cookieDomain "example.com" \
+   --adminPwd "password" \
+   --pwdEncKey "changeme" \
+   --cfgDir /opt/am \
+   --cfgStore "embedded" \
+   --cfgStoreAdminPort "4444" \
+   --cfgStoreDirMgr "uid=admin" \
+   --cfgStoreDirMgrPwd "password" \
+   --cfgStoreHost "localhost" \
+   --cfgStoreJmxPort "1689" \
+   --cfgStorePort "50636" \
+   --cfgStoreRootSuffix "ou=am-config" \
+   --cfgStoreSsl "SSL" \
+   --userStoreType "LDAPv3ForOpenDS" \
+   --userStoreHost "localhost" \
+   --userStorePort "50636" \
+   --userStoreDirMgr "uid=admin" \
+   --userStoreDirMgrPwd "password" \
+   --userStoreRootSuffix "ou=identities" \
+   --userStoreSsl "SIMPLE" \
+   --acceptLicense

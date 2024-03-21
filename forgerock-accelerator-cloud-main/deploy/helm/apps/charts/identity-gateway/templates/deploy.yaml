@@ -1,0 +1,111 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ tpl .Values.ig.podName . }}"
+  namespace: "{{ .Values.global.namespace }}"
+  labels:
+    app: "{{ tpl .Values.ig.podName . }}"
+spec:
+  podManagementPolicy: "{{ .Values.global.podManagementPolicy | default "OrderedReady" }}"
+  serviceName: "{{ tpl .Values.ig.serviceName . }}"
+  {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+  replicas: 1
+  {{- else }}
+  replicas: {{ .Values.ig.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+        app: "{{ tpl .Values.ig.podName . }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ tpl .Values.ig.podName . }}"
+        deploymentTime: "{{ now | date "20060102T150405" }}"
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - "{{ tpl .Values.ig.podName . }}"
+              topologyKey: "kubernetes.io/hostname"
+      securityContext:
+        runAsUser: 10002
+        runAsGroup: 10002
+        fsGroup: 10002
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+          - "{{ tpl .Values.ig.lbDomain . }}"
+      containers:
+      - name: "{{ tpl .Values.ig.podName . }}"
+        image: "{{ tpl .Values.ig.image . }}"
+        imagePullPolicy: "{{ .Values.global.imgPullPolicy | default "Always" }}"
+        resources:
+          requests:
+            cpu: {{ .Values.global.ig.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.ig.memory | default "2Gi" | quote }}
+          limits:
+            cpu: {{ .Values.global.ig.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.ig.memory | default "2Gi" | quote }}
+        livenessProbe:
+          httpGet:
+            path: "/{{ .Values.ig.uri }}/ping"
+            port: {{ .Values.ig.portHttps }}
+            scheme: HTTPS
+          initialDelaySeconds: 30 # how long to wait before checking
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 24 # how many failures to accept before failing
+          periodSeconds: 30 # how long to wait between checks
+          timeoutSeconds: 5 # how long to wait for a response
+        readinessProbe:
+          httpGet:
+            path: "/{{ .Values.ig.uri }}/ping"
+            port: {{ .Values.ig.portHttps }}
+            scheme: HTTPS
+          initialDelaySeconds: 30 # Do NOT set less than 120. how long to wait before checking
+          periodSeconds: 10 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 60 # how many failures to accept before failing
+          timeoutSeconds: 5 # how long to wait for a response
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.ig.secretName . }}"
+          - configMapRef:
+              name: "{{ tpl .Values.ig.configmapName . }}"
+        ports:
+        - name: http
+          containerPort: {{ .Values.ig.portHttp }}
+          protocol: TCP
+        - name: https
+          containerPort: {{ .Values.ig.portHttps }}
+          protocol: TCP
+      {{- if .Values.global.imgPullSecrets }}
+      imagePullSecrets:
+      - name: "{{ .Values.global.imgPullSecrets }}"
+      {{- end }}

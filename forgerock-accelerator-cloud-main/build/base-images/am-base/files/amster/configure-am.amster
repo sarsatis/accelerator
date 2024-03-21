@@ -1,0 +1,3 @@
+connect http://localhost:8080/am -k /opt/am/security/keys/amster/amster_rsa
+import-config --path /tmp/am/amster/config/ --clean true
+:exit

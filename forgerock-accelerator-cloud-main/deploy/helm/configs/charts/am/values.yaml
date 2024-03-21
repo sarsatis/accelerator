@@ -1,0 +1,74 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+am:
+  am_basedn_aps: "ou=am-config"
+  am_basedn_ts: "ou=tokens"
+  am_basedn_us: "ou=identities"
+  am_cert_alias: "access-manager"
+  am_cookie_name: "RisingSun"
+  am_realms: "/Customer"
+  am_server_port: "8443"
+  am_server_protocol: "https"
+  am_stores_application_enabled: "true"
+  am_stores_application_servers: "forgerock-app-policy-store-dc1-0.forgerock-app-policy-store.{{ .Values.global.namespace }}.svc.cluster.local:1636,forgerock-app-policy-store-dc1-1.forgerock-app-policy-store.{{ .Values.global.namespace }}.svc.cluster.local:1636"
+  am_stores_application_ssl_enabled: "true"
+  am_stores_application_username: "uid=am-config,ou=admins,ou=am-config"
+  am_stores_cts_mtls_enabled: "false" #if set to 'true'. Ensure AM certis trsted by CTS
+  am_stores_cts_servers: "forgerock-token-store-dc1-0.forgerock-token-store.{{ .Values.global.namespace }}.svc.cluster.local:1636"
+  am_stores_cts_ssl_enabled: "true"
+  am_stores_cts_username: "uid=openam_cts,ou=admins,ou=famrecords,ou=openam-session,ou=tokens"
+  am_stores_policy_enabled: "true"
+  am_stores_policy_servers: "forgerock-app-policy-store-dc1-0.forgerock-app-policy-store.{{ .Values.global.namespace }}.svc.cluster.local:1636,forgerock-app-policy-store-dc1-1.forgerock-app-policy-store.{{ .Values.global.namespace }}.svc.cluster.local:1636"
+  am_stores_policy_ssl_enabled: "true"
+  am_stores_policy_username: "uid=am-config,ou=admins,ou=am-config"
+  am_stores_ssl_enabled: "true"
+  am_stores_uma_mtls_enabled: "false" #if set to 'true'. Ensure AM certis trsted by UMA server
+  am_stores_uma_servers: "forgerock-token-store-dc1-0.forgerock-token-store.{{ .Values.global.namespace }}.svc.cluster.local:1636"
+  am_stores_uma_ssl_enabled: "true"
+  am_stores_uma_username: "uid=openam_cts,ou=admins,ou=famrecords,ou=openam-session,ou=tokens"
+  am_stores_user_servers: "forgerock-user-store-dc1-0.forgerock-user-store.{{ .Values.global.namespace }}.svc.cluster.local:1636"
+  am_stores_user_ssl_enabled: "true"
+  am_stores_user_type: "LDAPv3ForOpenDS"
+  am_stores_user_username: "uid=am-identity-bind-account,ou=admins,ou=identities"
+  amSiteFqdn: "amdc1.midships.io"
+  configmapName: "{{ .Values.global.baseNameAM }}-{{ .Values.global.clusterId }}"
+  connstringAffinity_ts: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}-0.{{ .Values.global.baseNameTS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}:1636,{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}-1.{{ .Values.global.baseNameTS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}:1636"
+  connstringAffinity_us: '"{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}-0.{{ .Values.global.baseNameUS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}:1636","{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}-1.{{ .Values.global.baseNameUS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}:1636"'
+  javaOpts: "-Xms2g"
+  k8sSvcUrl_cs: "{{ .Values.global.baseNameAPS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  k8sSvcUrl_ts: "{{ .Values.global.baseNameUS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  k8sSvcUrl_us: "{{ .Values.global.baseNameUS }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  load_app_policies: "true"
+  load_logback_xml: "false"
+  log_mode: "file" # Allowed values 'file', 'stdout'
+  portsHttp_am: "8080"
+  portsHttps_am: "8443"
+  portsHttps_aps: "8443"
+  portsHttps_ts: "8443"
+  portsHttps_us: "8443"
+  uri: "am"
+fact:
+  configmapName: "{{ .Values.global.baseNameFACT }}-{{ .Values.global.clusterId }}"
+  config_dir: "/opt/am/config"
+  am_server_url: "http://{{ tpl .Values.am.amSiteFqdn . }}:{{ tpl .Values.am.portsHttp_am . }}/{{ .Values.am.uri }}"
+  port: "8082"
+  diff_mode: "am"
+  node_env: "production"

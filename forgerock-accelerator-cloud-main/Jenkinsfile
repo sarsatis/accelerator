@@ -1,0 +1,220 @@
+pipeline {
+  agent any
+  options {
+     ansiColor('xterm')
+  }
+
+  parameters {
+       string(
+            defaultValue: 'latest',
+            description: 'Image tag for Destination',
+            name: 'IMAGES_TAG_DEST')
+       string(
+           defaultValue: 'latest',
+           description: 'Image Tag for Source',
+           name: 'IMAGES_TAG_SRC')
+       string(
+            defaultValue: 'forgerock',
+            description: 'Application Deployment Namespace',
+            name: 'NAMESPACE')
+       string(
+           defaultValue: 'local-mac',
+           description: 'Destination for pushing Images',
+           name: 'CI_REGISTRY_URL')
+       string(
+            defaultValue: 'sftp://ruhles.freeddns.org:22100',
+            description: 'Artefact Repository URL',
+            name: 'STORAGE_BUCKET_PATH_BIN')
+       booleanParam(
+            defaultValue: false,
+            description: 'Build All Forgerock Images',
+            name: 'BUILD_ALL')
+       booleanParam(
+            defaultValue: false,
+            description: 'Build All Base Images',
+            name: 'BUILD_ALL_BASE')
+       checkboxParameter(name: 'BUILD_SELECTED_CHILD', format: 'JSON',
+            pipelineSubmitContent: '''{
+                                       "CheckboxParameter": [
+                                       {
+                                         "key": "BUILDCHILD_AM",
+                                         "value": "BUILDCHILD_AM"
+                                       },
+                                       {
+                                         "key" : "BUILDCHILD_FACT",
+                                         "value" : "BUILDCHILD_FACT"
+                                       },
+                                       {
+                                        "key" : "BUILDCHILD_IDM",
+                                        "value" : "BUILDCHILD_IDM"
+                                       },
+                                       {
+                                        "key" : "BUILDCHILD_IG",
+                                        "value" : "BUILDCHILD_IG"
+                                       },
+                                       {
+                                        "key" : "BUILDCHILD_RS",
+                                        "value" : "BUILDCHILD_RS"
+                                       },
+                                       {
+                                       "key" : "BUILDCHILD_US",
+                                       "value" : "BUILDCHILD_US"
+                                       },
+                                       {
+                                       "key" : "BUILDCHILD_TS",
+                                       "value" : "BUILDCHILD_TS"
+                                       },
+                                       {
+                                       "key" : "BUILDCHILD_APS",
+                                       "value" : "BUILDCHILD_APS"
+                                       }
+                                     ]
+                                   }''',
+            description: 'Select the Child Images that need to be built')
+       booleanParam(
+           defaultValue: false,
+           description: 'Create Namespace',
+           name: 'CREATE_NAMESPACE')
+       booleanParam(
+           defaultValue: false,
+           description: 'Deploy All Apps',
+           name: 'DEPLOY_ALL')
+       checkboxParameter(name: 'DEPLOY_SELECTED_CHILD', format: 'JSON',
+                   pipelineSubmitContent: '''{
+                                              "CheckboxParameter": [
+                                              {
+                                                "key": "DEPLOY_AM",
+                                                "value": "DEPLOY_AM"
+                                              },
+                                              {
+                                               "key" : "DEPLOY_IDM",
+                                               "value" : "DEPLOY_IDM"
+                                              },
+                                              {
+                                               "key" : "DEPLOY_IG",
+                                               "value" : "DEPLOY_IG"
+                                              },
+                                              {
+                                               "key" : "DEPLOY_RS_ALL",
+                                               "value" : "DEPLOY_RS_ALL"
+                                              },
+                                              {
+                                              "key" : "DEPLOY_US",
+                                              "value" : "DEPLOY_US"
+                                              },
+                                              {
+                                              "key" : "DEPLOY_TS",
+                                              "value" : "DEPLOY_TS"
+                                              },
+                                              {
+                                              "key" : "DEPLOY_APS",
+                                              "value" : "DEPLOY_APS"
+                                              }
+                                            ]
+                                          }''',
+                   description: 'Select the Child Images that need to be built')
+  }
+
+  stages {
+         stage('Build All Images') {
+            when { expression { params.BUILD_ALL == true} }
+                  steps {
+                        withCredentials([usernamePassword(credentialsId: 'SFTP_CRED',
+                                passwordVariable: 'SFTP_PWORD',
+                                usernameVariable: 'SFTP_UNAME')]){
+                            sh '''
+                            BUILD_ALL=true \
+                            IMAGE_PUSH_ENABLED=false \
+                            scripts/cicd/build-docker-image-all.sh build
+                            '''
+                        }
+                  }
+         }
+
+      stage('Build All Base Images') {
+         when { expression { params.BUILD_ALL_BASE == true} }
+               steps {
+                     withCredentials([usernamePassword(credentialsId: 'SFTP_CRED',
+                             passwordVariable: 'SFTP_PWORD',
+                             usernameVariable: 'SFTP_UNAME')]){
+                        sh '''
+                        BUILDBASE_TOMCAT=true \
+                        BUILDBASE_AM=true \
+                        BUILDBASE_DS=true \
+                        BUILDBASE_IDM=true \
+                        BUILDBASE_FACT=true \
+                        BUILDBASE_IG=true \
+                        IMAGE_PUSH_ENABLED=false \
+                        scripts/cicd/build-docker-image-all.sh build
+                         '''
+                     }
+               }
+      }
+
+      stage('Build Selected Child Images') {
+         when { expression { params.BUILD_SELECTED_CHILD != ''} }
+               steps {
+                     withCredentials([usernamePassword(credentialsId: 'SFTP_CRED',
+                             passwordVariable: 'SFTP_PWORD',
+                             usernameVariable: 'SFTP_UNAME')]){
+                        sh '''
+                        #!/usr/bin/env bash
+                        echo $BUILD_SELECTED_CHILD | tr "," "\n" | while read CHILD_IMAGE
+                        do
+                               echo "Buiilding : ${CHILD_IMAGE}"
+                               eval ${CHILD_IMAGE}=true \
+                               IMAGE_PUSH_ENABLED=false \
+                               scripts/cicd/build-docker-image-all.sh build
+                        done
+                        '''
+                     }
+               }
+      }
+
+      stage('Create Namespace'){
+         when { expression { params.CREATE_NAMESPACE = true }}
+                steps{
+                        sh '''
+                         scripts/cicd/deploy-cluster-prereqs.sh
+                        '''
+                }
+      }
+
+      stage('Deploy Secrets and Configs'){
+          when { expression { params.DEPLOY_ALL = true }}
+                steps{
+                        sh '''
+                        scripts/cicd/deploy-secrets-and-configs.sh
+                        '''
+                }
+      }
+
+      stage('Deploy Services'){
+          when { expression { params.DEPLOY_ALL = true }}
+                steps{
+                        sh '''
+                        scripts/cicd/deploy-services-all.sh
+                        '''
+                }
+      }
+
+      stage('Deployment All Apps'){
+         when { expression { params.DEPLOY_ALL = true }}
+              steps{
+                        sh '''
+                        DEPLOY_AM=true \
+                        DEPLOY_APS=true \
+                        DEPLOY_RS_ALL=true \
+                        DEPLOY_TS=true \
+                        DEPLOY_US=true \
+                        DEPLOY_IDM=true \
+                        DEPLOY_IG=true \
+                        scripts/cicd/deploy-component-all.sh || exit 1
+                        '''
+              }
+      }
+
+
+
+  }
+}

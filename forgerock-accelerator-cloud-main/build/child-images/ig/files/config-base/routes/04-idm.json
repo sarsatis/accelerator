@@ -1,0 +1,6 @@
+{
+  "name" : "04-idm",
+  "condition" : "${find(request.uri.path, '^/idm')}",
+  "baseURI" : "https://forgerock-idm.forgerock.svc.cluster.local:8443",
+  "handler" : "ReverseProxyHandler"
+}

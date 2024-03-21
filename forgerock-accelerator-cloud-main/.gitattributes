@@ -1,0 +1,10 @@
+# when files are checked in to the repository, 
+# they'll be normalized to Unix-stye line endings (\n). 
+# When files are checked out to the working directory on a Windows machine, 
+# they'll be converted to the native Windows-style line endings (\r\n).
+* text=auto
+
+# Force these files to be Unix lf
+*.yaml text eol=lf
+*.sh text eol=lf
+*.json text eol=lf

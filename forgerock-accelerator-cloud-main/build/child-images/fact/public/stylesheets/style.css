@@ -1,0 +1,250 @@
+html {
+  line-height: 1.15;
+  /* 1 */
+  -ms-text-size-adjust: 100%;
+  /* 2 */
+  -webkit-text-size-adjust: 100%;
+  /* 2 */
+}
+
+body {
+  /* padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; */
+  min-height: 100vh;
+  min-width: 810px;
+  background: #d9eff5;
+  background: linear-gradient(45deg,#3949AB,#1E88E5) !important;
+  padding: 20px 20px 20px 20px;
+  font-family: 'Lato', sans-serif;
+  margin: 0;
+}
+
+.section {
+  border-radius: 15px;
+  padding: 10px 10px 10px 10px;
+  background-color: white;
+  min-height: 200px;
+  min-width: 940px;
+  overflow: auto;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  font-size: 90%;
+}
+
+.section-head {
+  background-color: #F5F5F5;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: bold;
+}
+
+button, input, select {
+  padding: 10px 20px !important;
+  border-radius: 6px;
+  border: solid 1px #CDBA96 !important;
+}
+select {
+  padding: 11px 20px 11.5px 20px !important;
+}
+
+select:hover,
+button:hover,
+input[type="button"] {
+  cursor:pointer;
+}
+
+.logo {
+  padding-top: 13px;
+}
+
+.control-join-right {
+  border-radius: 6px 0px 0px 6px !important;
+  border-right: none;
+}
+
+.control-join-left {
+  border-radius: 0px 6px 6px 0px !important;
+  border-left: none;
+}
+
+.control-join-both {
+  border-radius: 0px !important;
+  border-left: none;
+  border-right: none;
+}
+
+.tool-name {
+  margin-bottom: 6px;
+  color: white;
+}
+
+.tool-info {
+  font-size: 90%;
+  color: white;
+}
+
+.icon{
+  cursor: default;
+}
+
+/**
+ * Add the correct display in IE 9-.
+ */
+article,
+aside,
+footer,
+header,
+nav,
+section {
+  display: block;
+}
+
+/**
+ * Correct the font size and margin on `h1` elements within `section` and
+ * `article` contexts in Chrome, Firefox, and Safari.
+ */
+h1 {
+  font-size: 2em;
+  margin: 0.67em 0;
+}
+
+hr {
+  box-sizing: content-box;
+  /* 1 */
+  height: 0;
+  /* 1 */
+  overflow: visible;
+  /* 2 */
+}
+
+/* Text-level semantics
+ * 1. Remove the gray background on active links in IE 10.
+ * 2. Remove gaps in links underline in iOS 8+ and Safari 8+.
+ */
+a {
+  background-color: transparent;
+  /* 1 */
+  -webkit-text-decoration-skip: objects;
+  /* 2 */
+}
+
+/* Table Style */
+table {
+  border-collapse: separate;
+  text-indent: initial;
+  border-spacing: 2px;
+  width:100%;
+}
+
+tr {
+  display: table-row;
+  vertical-align: inherit;
+  border-color: inherit;
+}
+
+th {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+  text-transform: uppercase;
+  padding: 6px 4px 6px 4px;
+  background-color: #F5F5F5;
+  border-bottom: 4px solid #EBEBEB;
+}
+
+td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+/* Positioning */
+.inline {display: inline-block;}
+
+/* Alignment */
+.center-object{
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+      justify-content: center;
+  /* -ms-flex-align: center;
+      align-items: center; */
+}
+.center {text-align: center;}
+.left {text-align: left;}
+.right {text-align: right;}
+.float-left {float:left}
+.float-right {float:right}
+
+/* Toolbar */
+.grid-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 10px;
+  margin-bottom: 10px;
+}
+#mainToolbar{
+  min-width: 620px;
+}
+
+#mainToolbar button:hover:not(.active){
+  cursor:pointer;
+  color: orange;
+}
+
+#mainToolbar button.active:hover{
+  cursor:default;
+}
+
+#mainToolbar select:hover {
+  cursor:pointer;
+}
+
+.tab-content{
+  /* position: absolute; */
+  position: relative;
+  min-height: 75px;
+  margin-top: -50px;
+  background: #fff;
+  color: #000;
+  border-radius: 15px 15px 15px 15px;
+  z-index: 1000 !important;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.4);
+  padding: 15px 15px 15px 15px;
+  margin-bottom: 20px;
+  min-width: 100%;
+}
+.nav-item{
+  width: 30%;
+}
+.nav-tabs{
+  padding-left: 15px;
+}
+.download-tab {
+  width: 40%;
+  text-align: right;
+}
+.download-tab button{
+  padding: 5px 10px !important;
+}
+.download-tab button:hover{
+  background-color: #FF8247 !important;
+  color: white !important;
+}
+.nav-tabs .nav-link{
+  font-weight: bold;
+  padding-top: 8px !important;
+  padding-bottom: 45% !important; /*Same numeric value as .tab-content margin-top*/
+  text-align: center;
+  background: #343436;
+  color: #fff;
+  border-radius: 15px;
+  height: 80px;
+  width:100%;
+}
+.nav-tabs .nav-link.active{
+  background: #fff;
+  color: #000;
+  background: linear-gradient(180deg,#BFEFFF,white, white) !important;
+}

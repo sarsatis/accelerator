@@ -1,0 +1,206 @@
+connect "%AM_SERVER_URL%" -k "%PATH_AMSTER_RSA_KEY%"
+slurper = new groovy.json.JsonSlurper()
+path_tmpJson = '/tmp/groovyout.json'
+file_tmpJson = new File(path_tmpJson)
+println " "
+
+/* 
+-------------------
+Authorization Items
+------------------- */
+println "-> Authorization > Policy Sets"
+skippedItms = 0
+totalItms = 0
+amsterRes = eval("query Applications --realm %AM_REALM% --fliter true")
+file_tmpJson.write(amsterRes)
+if (!file_tmpJson || !file_tmpJson.exists()) {
+  println "-- ERROR: Temp file '${path_tmpJson}' does NOT exist"
+  System.exit(1)
+}
+if (file_tmpJson.readLines().size() > 0) {
+  result = slurper.parse(file_tmpJson)
+  if (result) {
+    totalItms = result.size()
+    for (i = 0; i < totalItms; i++) {
+      itmNum = (i+1)
+      if(result[i].name != "oauth2Scopes"){
+        println "-- Deleting '[${itmNum}] "+result[i].name+" ..."
+        eval("delete Applications --realm %AM_REALM% --id "+result[i]._id)
+      } else { skippedItms = (skippedItms+1) }
+    }
+  }
+  println "   Total found: '"+totalItms+"'"
+  println "   Total skipped: '"+skippedItms+"'"
+  println "-- Done"
+  println " "
+} else {
+  println "-- INFO: No Applicartion(s) available to delete"
+  println " "
+}
+
+println "-> Authorization > Resource Types"
+skippedItms = 0
+totalItms = 0
+amsterRes = eval("query ResourceTypes --realm %AM_REALM% --filter true")
+file_tmpJson.write(amsterRes)
+if (!file_tmpJson || !file_tmpJson.exists()) {
+  println "-- ERROR: Temp file '${path_tmpJson}' does NOT exist"
+  System.exit(1)
+}
+if (file_tmpJson.readLines().size() > 0) {
+  result = slurper.parse(file_tmpJson)
+  skippedItms = 0
+  if (result) {
+    totalItms = result.size()
+    for (i = 0; i < totalItms; i++) {
+      itmNum = (i+1)
+      if(result[i]._id != "d60b7a71-1dc6-44a5-8e48-e4b9d92dee8b" && result[i]._id != "76656a38-5f8e-401b-83aa-4ccb74ce88d2"){
+        println "-- Deleting '[${itmNum}] "+result[i].name+" ..."
+        eval("delete ResourceTypes --realm %AM_REALM% --id "+result[i]._id)
+      } else { skippedItms = (skippedItms+1) }
+    }
+  }
+  println "   Total found: '"+totalItms+"'"
+  println "   Total skipped: '"+skippedItms+"'"
+  println "-- Done"
+  println " "
+} else {
+  println "-- INFO: No Resource Type(s) available to delete"
+  println " "
+}
+
+/* 
+-------------------------------
+Applications: Agents and 0Auth2   
+------------------------------- */
+println "-> Applications: Agents"
+skippedItms = 0
+totalItms = 0     
+amsterRes = eval("query Agents --realm %AM_REALM% --fliter true")
+file_tmpJson.write(amsterRes)
+if (!file_tmpJson || !file_tmpJson.exists()) {
+  println "-- ERROR: Temp file '${path_tmpJson}' does NOT exist"
+  System.exit(1)
+}
+if (file_tmpJson.readLines().size() > 0) {
+  result = slurper.parse(file_tmpJson)
+  skippedItms = 0
+  if (result) {
+    totalItms = result.size()
+    for (i = 0; i < totalItms; i++) {
+      itmNum = (i+1)
+      println "-- Deleting '[${itmNum}] "+result[i]._id+" ("+result[i]._type+") ..."
+      switch(result[i]._type) {    
+        case "WebAgent": 
+          eval("delete WebAgents --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "J2EEAgent": 
+          eval("delete J2eeAgents --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "OAuth2Client": 
+          eval("delete OAuth2Clients --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "SharedAgent": 
+          eval("delete SharedAgents --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "SoapSTSAgent": 
+          eval("delete SoapStsAgents --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "RemoteConsentAgent": 
+          eval("delete RemoteConsentAgent --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "SoftwarePublisher": 
+          eval("delete SoftwarePublisher --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "IdentityGatewayAgent": 
+          eval("delete IdentityGatewayAgents --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        case "TrustedJwtIssuer": 
+          eval("delete TrustedJwtIssuer --realm %AM_REALM% --id "+result[i]._id)
+          break;
+        default:
+          println("   ERROR: Cannot delete as no code avaiable. Update code to handle.")
+          skippedItms = (skippedItms+1)
+          break;
+      }
+    }
+  }
+  println "   Total found: '"+totalItms+"'"
+  println "   Total skipped: '"+skippedItms+"'"
+  println "-- Done"
+  println " "
+} else {
+  println "-- INFO: No Agent(s) available to delete"
+  println " "
+}
+
+/* 
+-----------------------
+Application: Federation
+----------------------- */
+println "-> Application > Federation: CircleOfTrust"
+skippedItms = 0
+totalItms = 0
+amsterRes = eval("query CircleOfTrust --realm %AM_REALM% --fliter true")
+file_tmpJson.write(amsterRes)
+if (!file_tmpJson || !file_tmpJson.exists()) {
+  println "-- ERROR: Temp file '${path_tmpJson}' does NOT exist"
+  System.exit(1)
+}
+if (file_tmpJson.readLines().size() > 0) {
+  result = slurper.parse(file_tmpJson)
+  if (result) {
+    totalItms = result.size()
+    for (i = 0; i < totalItms; i++) {
+      itmNum = (i+1)
+      println "-- Deleting '[${itmNum}] "+result[i]._id+" ..."
+      eval("delete CircleOfTrust --realm %AM_REALM% --id "+result[i]._id)
+    }
+  }
+  println "   Total found: '"+totalItms+"'"
+  println "   Total skipped: '"+skippedItms+"'"
+  println "-- Done"
+  println " "
+} else {
+  println "-- INFO: No CircleOfTrust(s) available to delete"
+  println " "
+}
+
+println "-> Application > Federation: Entity Providers (Saml2Entities)"
+skippedItms = 0
+totalItms = 0
+amsterRes = eval("query Saml2Entities --realm %AM_REALM% --fliter true")
+file_tmpJson.write(amsterRes)
+if (!file_tmpJson || !file_tmpJson.exists()) {
+  println "-- ERROR: Temp file '${path_tmpJson}' does NOT exist"
+  System.exit(1)
+}
+if (file_tmpJson.readLines().size() > 0) {
+  result = slurper.parse(file_tmpJson)
+  if (result) {
+    totalItms = result.size()
+    for (i = 0; i < totalItms; i++) {
+      itmNum = (i+1)
+      println "-- Deleting '[${itmNum}] "+result[i].entityId+" ("+result[i].location+") ..."
+      switch(result[i].location) {    
+        case "hosted":
+          eval("delete HostedSaml2EntityProvider --realm %AM_REALM% --id '"+result[i]._id+"'")
+          break;
+        case "remote":
+          eval("delete RemoteSaml2EntityProvider --realm %AM_REALM% --id '"+result[i]._id+"'")
+          break;
+        default:
+          println("   ERROR: Cannot delete as no code avaiable. Update code to handle.")
+          skippedItms = (skippedItms+1)
+          break;
+      }
+    }
+  }
+  println "   Total found: '"+totalItms+"'"
+  println "   Total skipped: '"+skippedItms+"'"
+  println "-- Done"
+  println " "
+} else {
+  println "-- INFO: No Entity Provider(s) available to delete"
+  println " "
+}

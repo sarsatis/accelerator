@@ -1,0 +1,43 @@
+suite: access-manager FACT ConfigMap tests
+templates:
+  - ../templates/configs-fact.yaml
+tests:
+  - it: Check deploy.yaml values
+    values:
+      - ../values.yaml
+      - ../../../values.yaml
+
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - isAPIVersion:
+          of: v1
+      - exists:
+          path: data.AM_SERVER_URL
+      - isNotNullOrEmpty:
+          path: data.AM_SERVER_URL
+      - exists:
+          path: data.CONFIG_DIR
+      - isNotNullOrEmpty:
+          path: data.CONFIG_DIR
+   
+      - exists:
+          path: data.DIFF_MODE
+      - isNotNullOrEmpty:
+          path: data.DIFF_MODE
+   
+      - exists:
+          path: data.NODE_ENV
+      - isNotNullOrEmpty:
+          path: data.NODE_ENV
+   
+      - exists:
+          path: data.POD_NAMESPACE
+      - isNotNullOrEmpty:
+          path: data.POD_NAMESPACE
+   
+      - exists:
+          path: data.PORT
+      - isNotNullOrEmpty:
+          path: data.PORT
+  

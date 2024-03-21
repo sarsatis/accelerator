@@ -1,0 +1,35 @@
+suite: access-manager hpa deployment tests 
+templates:
+  - ../templates/hpa.yaml
+tests:
+  - it: Check hpa.yaml values
+    values:
+      - ../values.yaml
+      - ../../../values.yaml
+
+    asserts:
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - isAPIVersion:
+          of: autoscaling/v1
+      - equal:
+          path: metadata.name
+          value: forgerock-access-manager-dc1
+      - matchRegex:
+          path: metadata.namespace
+          pattern: ^forgerock.*
+      - equal:
+          path: spec.maxReplicas
+          value: 10
+      - equal:
+          path: spec.scaleTargetRef.apiVersion
+          value: apps/v1
+      - equal:
+          path: spec.scaleTargetRef.kind
+          value: StatefulSet
+      - equal:
+          path: spec.scaleTargetRef.name
+          value: forgerock-access-manager-dc1
+      - equal:
+          path: spec.targetCPUUtilizationPercentage
+          value: 75

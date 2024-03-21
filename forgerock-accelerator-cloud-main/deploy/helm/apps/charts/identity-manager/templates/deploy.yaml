@@ -1,0 +1,127 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: "{{ tpl .Values.idm.podName . }}"
+  namespace: "{{ .Values.global.namespace }}"
+spec:
+  podManagementPolicy: "{{ .Values.global.podManagementPolicy | default "OrderedReady" }}"
+  selector:
+    matchLabels:
+      app: "{{ tpl .Values.idm.podName . }}"
+  {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+  replicas: 1
+  {{- else }}
+  replicas: {{ .Values.idm.replicas }}
+  {{- end }}
+  serviceName: "{{ tpl .Values.idm.serviceName . }}"
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
+      labels:
+        app: "{{ tpl .Values.idm.podName . }}"
+        deploymentTime: "{{ now | date "20060102T150405" }}"
+    spec:
+      securityContext:
+        runAsUser: 10002
+        runAsGroup: 10002
+        fsGroup: 10002
+      containers:
+      - name: idm
+        image: "{{ tpl .Values.idm.image . }}"
+        imagePullPolicy: "{{ .Values.global.imgPullPolicy | default "Always" }}"
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+        livenessProbe:
+          httpGet:
+            httpHeaders:
+            - name: X-OpenIDM-Username
+              value: anonymous
+            - name: X-OpenIDM-Password
+              value: anonymous
+            - name: Accept-API-Version
+              value: "resource=1.0"
+            - name: X-OpenIDM-NoSession
+              value: "true"
+            path: /openidm/info/ping
+            port: {{ .Values.idm.portHttps }}
+            scheme: HTTPS
+          initialDelaySeconds: 90 # how long to wait before 1st check
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 30 # how many failures to accept before failing
+          periodSeconds: 10 # how long to wait between checks
+          timeoutSeconds: 5 # how long to wait for a response
+        readinessProbe:
+          httpGet:
+            httpHeaders:
+            - name: X-OpenIDM-Username
+              value: anonymous
+            - name: X-OpenIDM-Password
+              value: anonymous
+            - name: Accept-API-Version
+              value: "resource=1.0"
+            - name: X-OpenIDM-NoSession
+              value: "true"
+            path: /openidm/info/ping
+            port: {{ .Values.idm.portHttps }}
+            scheme: HTTPS
+          initialDelaySeconds: 60 # how long to wait before 1st check
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 30 # how many failures to accept before failing
+          periodSeconds: 10 # how long to wait between checks
+          timeoutSeconds: 5 # how long to wait for a response
+        resources:
+          requests:
+            cpu: {{ .Values.global.idm.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.idm.memory | default "2Gi" | quote }}
+          limits:
+            cpu: {{ .Values.global.idm.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.idm.memory | default "2Gi" | quote }}
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.idm.secretName . }}"
+          - configMapRef:
+              name: "{{ tpl .Values.idm.configmapName . }}"
+        env:
+        - name: SECRET_CERTIFICATE_US
+          valueFrom:
+            secretKeyRef:
+              name: "{{ tpl .Values.userstore.secretName . }}"
+              key: SECRET_CERTIFICATE
+        - name: SECRET_PASSWORD_USER_DS_PRIMARY
+          valueFrom:
+            secretKeyRef:
+              name: "{{ tpl .Values.userstore.secretName . }}"
+              key: SECRET_PASSWORD_USER_ADMIN
+        ports:
+        - name: http
+          containerPort: {{ .Values.idm.portHttp }}
+          protocol: TCP
+        - name: https
+          containerPort: {{ .Values.idm.portHttps }}
+          protocol: TCP
+      {{- if .Values.global.imgPullSecrets }}
+      imagePullSecrets:
+      - name: "{{ .Values.global.imgPullSecrets }}"
+      {{- end }}

@@ -1,0 +1,15 @@
+{
+  "metadata" : {
+    "realm" : null,
+    "amsterVersion" : "&{version}",
+    "entityType" : "Sites",
+    "entityId" : "mainsite",
+    "pathParams" : { }
+  },
+  "data" : {
+    "_id" : "mainsite",
+    "id" : "02",
+    "url" : "http://default.iam.example.com:8080/am",
+    "secondaryURLs" : [ ]
+  }
+}

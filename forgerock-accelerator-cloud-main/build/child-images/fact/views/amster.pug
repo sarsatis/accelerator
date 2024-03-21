@@ -1,0 +1,12 @@
+extends layout
+
+block content
+  div.section
+    div.section-head DYNAMIC CONFIGURATIONS (#{feature})
+    if download
+      div.center Amster Export file ready for download  
+    if amsterStatus
+      if amsterStatus.files > 0
+        div.center Amster Export archive sucessfully processed. Check Access Manager for confirmation.
+      if amsterStatus.message.error != ""
+        div.alert.alert-danger(role="alert") #{importStatus.message.error}

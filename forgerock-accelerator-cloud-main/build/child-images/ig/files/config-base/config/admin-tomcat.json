@@ -1,0 +1,4 @@
+{
+  "prefix" : "${IG_URI}",
+  "mode": "${IG_MODE}"
+}

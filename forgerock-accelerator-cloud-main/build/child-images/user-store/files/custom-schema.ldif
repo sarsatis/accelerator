@@ -1,0 +1,19 @@
+# Reference:
+# JSON (1.3.6.1.4.1.36733.2.1.3.1)
+# String (1.3.6.1.4.1.1466.115.121.1.15)
+# Boolean (1.3.6.1.4.1.1466.115.121.1.7)
+# Integer (1.3.6.1.4.1.1466.115.121.1.27)
+# Date/Time (1.3.6.1.4.1.1466.115.121.1.24)
+# OCTET STRING (1.3.6.1.4.1.1466.115.121.1.40)
+## Schema definition for IAM Data model
+dn: cn=schema
+objectclass: top
+objectclass: ldapSubentry
+objectclass: subschema
+cn: schema
+#
+attributeTypes: ( 9.8.0.1 NAME ( 'status' ) EQUALITY caseIgnoreMatch SUBSTR caseIgnoreSubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64} X-ORIGIN 'CustomerIAM')
+attributeTypes: ( 9.8.0.2 NAME ( 'authStatus' ) EQUALITY caseIgnoreJsonQueryMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.15{64} X-ORIGIN 'CustomerIAM')
+#
+objectClasses: ( 9.9.0 NAME ( 'Customer' ) SUP top AUXILIARY MAY ( status $ authStatus ) X-ORIGIN 'CustomerIAM' )
+#objectClasses: ( 9.9.0 NAME ( 'Customer' ) SUP top STRUCTURAL MUST ( uid ) MAY ( status $ authStatus ) X-ORIGIN 'CustomerIAM' )

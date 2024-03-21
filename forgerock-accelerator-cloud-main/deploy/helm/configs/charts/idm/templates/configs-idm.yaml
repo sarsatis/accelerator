@@ -1,0 +1,58 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ tpl .Values.idm.configmapName . }}"
+  namespace: "{{ .Values.global.namespace }}"
+  labels:
+    deploymentTime: {{ now | date "20060102T150405" | quote }}
+data:
+  CERT_ALIAS: "openidm-localhost"
+  DS_REPO_BIND_DN: "cn=Root User"
+  DS_REPO_FQDN_PRIMARY: "{{ tpl .Values.userstore.podName . }}-0.{{ tpl .Values.userstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  DS_REPO_FQDN_SECONDARY: "{{ tpl .Values.userstore.podName . }}-0.{{ tpl .Values.userstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  DS_REPO_PORT_HTTP_PRIMARY: "{{ .Values.idm.dsRepo.port.httpPrimary }}"
+  DS_REPO_PORT_HTTP_SECONDARY: "{{ .Values.idm.dsRepo.port.httpSecondary }}"
+  DS_REPO_PORT_HTTPS_PRIMARY: "{{ .Values.idm.dsRepo.port.httpsPrimary }}"
+  DS_REPO_PORT_HTTPS_SECONDARY: "{{ .Values.idm.dsRepo.port.httpsSecondary }}"
+  DS_REPO_PORT_LDAP_PRIMARY: "{{ .Values.idm.dsRepo.port.ldapPrimary }}"
+  DS_REPO_PORT_LDAP_SECONDARY: "{{ .Values.idm.dsRepo.port.ldapSecondary }}"
+  DS_REPO_PORT_LDAPS_PRIMARY: "{{ .Values.idm.dsRepo.port.ldapsPrimary }}"
+  DS_REPO_PORT_LDAPS_SECONDARY: "{{ .Values.idm.dsRepo.port.ldapsSecondary }}"
+  DS_REPO_REPO_SECURITY: "{{ .Values.idm.dsRepo.security }}"
+  ENV_TYPE: "{{ .Values.global.envType }}"
+  LB_DOMAIN: "{{ .Values.idm.lbFQDN }}"
+  NAMESPACE: "{{ .Values.global.namespace }}"
+  POD_NAMESPACE: "{{ .Values.global.namespace }}"
+  PORT_HTTP: "{{ .Values.idm.portHttp }}"
+  PORT_HTTPS: "{{ .Values.idm.portHttps }}"
+  PORT_MUTUAL_AUTH: "{{ .Values.idm.portMauth }}"
+  PROFILE: "{{ .Values.idm.profile }}" # Either 'ds', 'mysql', or 'oracle'
+  SECRETS_MANAGER_BASE_URL: "{{ .Values.global.secretsmanager.url }}"
+  SECRETS_MANAGER_PATH_APS: "{{ .Values.global.secretsmanager.aps_path }}"
+  SECRETS_MANAGER_PATH_RS: "{{ .Values.global.secretsmanager.rs_path }}"
+  SECRETS_MANAGER_PATH_TS: "{{ .Values.global.secretsmanager.ts_path }}"
+  SECRETS_MANAGER_PATH_US: "{{ .Values.global.secretsmanager.us_path }}"
+  SECRETS_MANAGER_TOKEN: "{{ .Values.global.secretsmanager.token }}"
+  SECRETS_MODE: "{{ .Values.global.secretsMode }}" # Accepted values 'volume' or 'REST'. Former where secrets and config are stored in K8s, later in a REST secrets manager.
+  UNAME_PROMETHEUS: "{{ .Values.idm.unamePrometheus }}"
+  OPENIDM_OPTS : "-Xms1024m -Xmx1024m"

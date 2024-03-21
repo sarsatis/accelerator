@@ -1,0 +1,68 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ tpl .Values.replserver.us.configmapName . }}"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    deploymentTime: {{ now | date "20060102T150405" | quote }}
+data:
+  BACKUP_BACKEND: "{{ tpl .Values.replserver.us.backup_backend . }}"
+  BACKUP_BEFORE_UPGRADE: "{{ tpl .Values.replserver.us.backup_before_upgrade . }}"
+  BACKUP_FREQUENCY: "{{ tpl .Values.replserver.us.backup_frequency . }}"
+  CERT_ALIAS: "{{ tpl .Values.replserver.us.cert_alias . }}"
+  CLUSTER_DOMAIN: "{{ .Values.global.clusterDomain }}"
+  DISABLE_INSECURE_COMMS: "{{ tpl .Values.replserver.us.disable_insecure_comms . }}"
+  DN_ADMIN: "{{ tpl .Values.replserver.us.dn_admin . }}"
+  DN_BASE: "{{ tpl .Values.replserver.us.dn_base . }}"
+  DS_TYPE: "{{ .Values.replserver.us.ds_type }}"
+  ENV_TYPE: "{{ .Values.global.envType }}"
+  INTER_CLUSTER_REPL_ON: "{{ tpl .Values.replserver.us.inter_cluster_repl_on . }}" 
+  LOAD_CUSTOM_DS_CONFIG: "{{ tpl .Values.replserver.us.load_custom_ds_config . }}"
+  LOAD_CUSTOM_JAVA_PROPS: "{{ tpl .Values.replserver.us.load_custom_java_props . }}"
+  LOAD_SCHEMA: "{{ .Values.replserver.us.load_schema }}"
+  LOG_MODE: "{{ tpl .Values.replserver.us.log_mode . }}"
+  NOTIFICATION_EMAIL: "{{ .Values.global.notificationEmail }}"
+  POD_BASENAME: "{{ tpl .Values.replserver.us.podName . }}"
+  POD_NAMESPACE: "{{ .Values.global.namespace }}"
+  POD_SERVICE_NAME: "{{ tpl .Values.replserver.us.serviceName . }}"
+  PORT_ADMIN: "{{ tpl .Values.replserver.us.port_admin . }}"
+  PORT_HTTP: "{{ tpl .Values.replserver.us.port_http . }}"
+  PORT_HTTPS: "{{ tpl .Values.replserver.us.port_https . }}"
+  PORT_LDAP: "{{ tpl .Values.replserver.us.port_ldap . }}"
+  PORT_LDAPS: "{{ tpl .Values.replserver.us.port_ldaps . }}"
+  PORT_REPLICATION: "{{ .Values.replserver.us.port_replication }}"
+  PORT_REST: "{{ tpl .Values.replserver.us.port_https . }}"
+  PROTOCOL_REST: "{{ tpl .Values.replserver.us.protocol_rest . }}"
+  REPLICATION_ADMIN_UID: "{{ tpl .Values.replserver.us.replication_admin_uid . }}"
+  RS_LIST_INTER_CLUSTER: "{{ tpl .Values.replserver.us.rs_list_inter_cluster . }}"
+  RS_LIST_INTRA_CLUSTER: "{{ tpl .Values.replserver.us.rs_list_intra_cluster . }}"
+  SECRETS_MANAGER_BASE_URL: "{{ .Values.global.secretsmanager.url }}"
+  SECRETS_MANAGER_PATH_APS: "{{ .Values.global.secretsmanager.aps_path }}"
+  SECRETS_MANAGER_PATH_RS: "{{ .Values.global.secretsmanager.rs_path }}"
+  SECRETS_MANAGER_PATH_TS: "{{ .Values.global.secretsmanager.ts_path }}"
+  SECRETS_MANAGER_PATH_US: "{{ .Values.global.secretsmanager.us_path }}"
+  SECRETS_MANAGER_TOKEN: "{{ .Values.global.secretsmanager.token }}"
+  SECRETS_MODE: "{{ .Values.global.secretsMode }}"
+  SELF_REPLICATE: "{{ tpl .Values.replserver.us.self_replicate . }}"
+  THRESHOLD_DISK_FULL: "{{ tpl .Values.replserver.us.threshold_disk_full . }}"
+  THRESHOLD_DISK_LOW: "{{ tpl .Values.replserver.us.threshold_disk_low . }}"

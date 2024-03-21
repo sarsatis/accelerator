@@ -1,0 +1,62 @@
+doctype html
+html
+  head
+    title= title
+    link(rel='stylesheet', href='/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    script(src="/js/bootstrap.js")
+    script(src="/scripts/functions.js")
+  body
+    div.content
+      div.tool-name.center
+        b FORGEROCK ACCELERATOR CONFIG TOOL
+      div.grid-toolbar
+        div.logo.pt-5.right
+          a(href="/")
+            img(src='/images/logo.png' alt='logo' style='width:150px;')
+        div#mainToolbar
+          ul#allTabs.nav.nav-tabs(role="tablist")
+            li.nav-item(role="presentation")
+              button#static-configs-tab.nav-link.active(data-feature-selected=(feature==='diff' ? 'true' : 'false') data-bs-toggle="tab" data-bs-target="#static-configs-tab-pane" type="button" role="tab" aria-controls="static-configs-tab-pane" aria-selected="true") Static Configs
+            li.nav-item(role="presentation")
+              button#dynamic-configs-tab.nav-link(data-feature-selected=(feature==='amster' ? 'true' : 'false') data-bs-toggle="tab" data-bs-target="#dynamic-configs-tab-pane" type="button" role="tab" aria-controls="dynamic-configs-tab-pane" aria-selected="false") Dynamic Configs
+            if download
+              if download.url
+                li.download-tab
+                  form.inline(action=download.url, method='GET')
+                    button.btn.btn-warning.btn-sm(type='submit') #{download.btnLabel} 
+          div#allTabContents.tab-content
+            div#static-configs-tab-pane.tab-pane.fade.show.active(role="tabpanel" aria-labelledby="static-configs-tab" tabindex="0")
+              form.inline.float-left(action='/diff', method='GET', onsubmit='onSubmitForm(event)')
+                label Export Type: &nbsp;
+                // The option values are express route parameters and must be made up of 
+                // "word characters" (A-Z, a-z, 0-9, and _)
+                select.control-join-right(name="diffType", id="ddlDiffType")
+                  option(value="diff_new_amended") New and Amended Files
+                  option(value="diff_new") New Files 
+                  option(value="diff_amended") Amended Files
+                  option(value="diff_deleted") Deleted Files
+                button.control-join-left(type='submit') Check
+              if diffs
+                if diffs.filesCount >= 0
+                  div.inline.float-right.pt-2
+                    span
+                      | Found &nbsp
+                      b #{diffs.filesCount} 
+            div#dynamic-configs-tab-pane.tab-pane.fade(role="tabpanel" aria-labelledby="dynamic-configs-tab" tabindex="0")
+              div.btn-toolbar
+                form.inline(action='/amster/export', method='GET', onsubmit='onSubmitForm(event)')
+                  div.btn-group.me-2
+                    button.btn-with-spinner(type='submit') Export
+                form.inline(action='/amster/import', method='POST', onsubmit='onSubmitForm(event)', enctype='multipart/form-data')
+                  div.input-group
+                    input#amster-zip-to-upload.form-control(type="file" name="amsterArchive" aria-label="Amster import archive" aria-describedby="btn-select-zip-to-import")
+                    button#btn-select-zip-to-import(type='submit') Import
+                    span.input-group-text.icon &#x1F6C8;             
+        div.pt-5
+          span.tool-info Powered By &nbsp;
+            img(src='/images/midships.png' alt='logo' style='height:40px;')
+          div.tool-info for &nbsp
+            b ACCESS MANAGER
+    div.center-object
+      block content

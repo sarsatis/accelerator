@@ -1,0 +1,208 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ tpl .Values.aps.podName . }}
+  namespace: {{ .Values.global.namespace }}
+spec:
+  serviceName: {{ tpl .Values.aps.serviceName . }}
+  {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+  replicas: 1
+  {{- else }}
+  replicas: {{ .Values.aps.replicas }}
+  {{- end }}
+  podManagementPolicy: {{ .Values.global.podManagementPolicy | default "OrderedReady" | quote }}
+  selector:
+    matchLabels:
+      app: {{ tpl .Values.aps.podName . }}
+  template:
+    metadata:
+      labels:
+        app: {{ tpl .Values.aps.podName . }}
+        deploymentTime: {{ now | date "20060102T150405" | quote }}
+    spec:
+      {{- if and .Values.replserver.hostAliases_ip1 .Values.replserver.hostAliases_hostname1 }}
+      hostAliases:
+        {{- if and .Values.replserver.hostAliases_ip1 .Values.replserver.hostAliases_hostname1 }}
+        - ip: "{{ .Values.replserver.hostAliases_ip1 }}"
+          hostnames:
+          - "{{ tpl .Values.replserver.hostAliases_hostname1 . }}"
+        {{- end }}
+        {{- if and .Values.replserver.hostAliases_ip2 .Values.replserver.hostAliases_hostname2 }}
+        - ip: "{{ .Values.replserver.hostAliases_ip2 }}"
+          hostnames:
+          - "{{ tpl .Values.replserver.hostAliases_hostname2 . }}"
+        {{- end }}
+        {{- if and .Values.replserver.hostAliases_ip3 .Values.replserver.hostAliases_hostname3 }}
+        - ip: "{{ .Values.replserver.hostAliases_ip3 }}"
+          hostnames:
+          - "{{ tpl .Values.replserver.hostAliases_hostname3 . }}"
+        {{- end }}
+        {{- if and .Values.aps.hostAliases_ip1 .Values.aps.hostAliases_hostname1 }}
+        - ip: {{ .Values.aps.hostAliases_ip1 }}
+          hostnames:
+          - {{ tpl .Values.aps.hostAliases_hostname1 . }}
+        {{- end }}
+        {{- if and .Values.aps.hostAliases_ip2 .Values.aps.hostAliases_hostname2 }}
+        - ip: {{ .Values.aps.hostAliases_ip2 }}
+          hostnames:
+          - {{ tpl .Values.aps.hostAliases_hostname2 . }}
+        {{- end }}
+        {{- if and .Values.aps.hostAliases_ip3 .Values.aps.hostAliases_hostname3 }}
+        - ip: {{ .Values.aps.hostAliases_ip3 }}
+          hostnames:
+          - {{ tpl .Values.aps.hostAliases_hostname3 . }}
+        {{- end }}
+      {{- end }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - {{ tpl .Values.aps.podName . }}
+              topologyKey: "kubernetes.io/hostname"
+      securityContext:
+        runAsUser: 10002
+        runAsGroup: 10002
+        fsGroup: 10002
+      volumes:
+        - name: pvc
+          persistentVolumeClaim:
+            claimName: pvc
+      containers:
+      - name: {{ tpl .Values.aps.podName . }}
+        image: {{ tpl .Values.aps.image . }}
+        imagePullPolicy: {{ .Values.global.imgPullPolicy | default "Always" | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+        volumeMounts:
+          - mountPath: "/opt/ds/app"
+            name: pvc
+        resources:
+          requests:
+            cpu: {{ .Values.global.aps.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.aps.memory | default "2Gi" | quote }}
+          limits:
+            cpu: {{ .Values.global.aps.cpu | default "1000m" | quote }}
+            memory: {{ .Values.global.aps.memory | default "2Gi" | quote }}
+        startupProbe:
+          exec:
+            command:
+            - cat
+            - /opt/ds/ds_setup_done # DO NOT CHANGE
+          initialDelaySeconds: 30 # how long to wait before 1st check
+          failureThreshold: 120 # how many failures to accept before failing
+          periodSeconds: 10 # how long to wait for a response
+        livenessProbe:
+          httpGet:
+            port: {{ tpl .Values.aps.portHttps . }}
+            path: /alive
+            scheme: HTTPS
+          initialDelaySeconds: 10 # how long to wait before 1st check
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 2 # how many failures to accept before failing
+          periodSeconds: 30 # how long to wait between checks
+          timeoutSeconds: 5 # how long to wait for a response
+        readinessProbe:
+          httpGet:
+            port: {{ tpl .Values.aps.portHttps . }}
+            path: /alive
+            scheme: HTTPS
+          initialDelaySeconds: 5 # Do NOT set less than 420. how long to wait before checking
+          periodSeconds: 10 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 6 # how many failures to accept before failing
+          timeoutSeconds: 5 # how long to wait for a response
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.aps.secretName . }}"
+          - configMapRef:
+              name: "{{ tpl .Values.aps.configmapName . }}"
+        env:
+          - name: REPLICAS
+            value: {{ .Values.aps.replicas | default 1 | quote }}
+          - name: SECRET_CERTIFICATE_AM
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.am.secretName . }}"
+                key: SECRET_CERTIFICATE
+          - name: SECRET_CERTIFICATE_RS
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.replserver.secretName . }}"
+                key: SECRET_CERTIFICATE
+          - name: SECRET_DEPLOYMENT_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.replserver.secretName . }}"
+                key: SECRET_DEPLOYMENT_KEY
+          - name: SECRET_PASSWORD_DEPLOYMENT_KEY
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.replserver.secretName . }}"
+                key: SECRET_PASSWORD_DEPLOYMENT_KEY
+          - name: SECRET_PASSWORD_USER_MONITOR
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.replserver.secretName . }}"
+                key: SECRET_PASSWORD_USER_MONITOR
+        ports:
+          - name: ldap
+            containerPort: {{ tpl .Values.aps.portLdap . }}
+            protocol: TCP
+          - name: ldaps
+            containerPort: {{ tpl .Values.aps.portLdaps . }}
+            protocol: TCP
+          - name: admin
+            containerPort: {{ tpl .Values.aps.portAdmin . }}
+            protocol: TCP
+          - name: replication
+            containerPort: {{ tpl .Values.aps.port_replication . }}
+            protocol: TCP
+          - name: http
+            containerPort: {{ tpl .Values.aps.portHttp . }}
+            protocol: TCP
+          - name: https
+            containerPort: {{ tpl .Values.aps.portHttps . }}
+            protocol: TCP
+      {{- if .Values.global.imgPullSecrets }}
+      imagePullSecrets:
+      - name: "{{ .Values.global.imgPullSecrets }}"
+      {{- end }} 
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc
+        annotations:
+          pv.beta.kubernetes.io/gid: "0"
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.aps.pvcSize }}

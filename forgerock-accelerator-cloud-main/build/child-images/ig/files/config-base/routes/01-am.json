@@ -1,0 +1,6 @@
+{
+  "name" : "01-am",
+  "baseURI" : "https://forgerock-access-manager.forgerock.svc.cluster.local:8443",
+  "condition" : "${find(request.uri.path, '^/am')}",
+  "handler" : "ReverseProxyHandler"
+}

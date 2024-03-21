@@ -1,0 +1,63 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ tpl .Values.ig.serviceName . }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.ig.podName . }}"
+    deploymentTime: {{ now | date "20060102T150405" | quote }}
+spec:
+  clusterIP: None
+  selector:
+    app: "{{ tpl .Values.ig.serviceName . }}"
+  ports:
+  - name: https
+    port: {{ .Values.ig.portHttps }}
+    targetPort: {{ .Values.ig.portHttps }}
+    protocol: TCP
+  - name: http
+    port: {{ .Values.ig.portHttp }}
+    targetPort: {{ .Values.ig.portHttp }}
+    protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ tpl .Values.ig.serviceName . }}-lb"
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: "{{ tpl .Values.ig.podName . }}"
+spec:
+  type: LoadBalancer
+  selector:
+    app: "{{ tpl .Values.ig.podName . }}"
+  ports:
+  - name: http
+    port: 80
+    targetPort: {{ .Values.ig.portHttp }}
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: {{ .Values.ig.portHttps }}
+    protocol: TCP

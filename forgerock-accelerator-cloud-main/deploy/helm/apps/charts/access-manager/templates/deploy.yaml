@@ -1,0 +1,234 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ tpl .Values.am.podName . | quote }}
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    app: {{ tpl .Values.am.podName . | quote }}
+spec:
+  serviceName: {{ tpl .Values.am.serviceName . | quote }}
+  {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+  replicas: 1
+  {{- else }}
+  replicas: {{ .Values.am.replicas }}
+  {{- end }}
+  podManagementPolicy: {{ .Values.global.podManagementPolicy | default "OrderedReady" | quote }}
+  selector:
+    matchLabels:
+        app: {{ tpl .Values.am.podName . | quote }}
+  template:
+    metadata:
+      labels:
+        app: {{ tpl .Values.am.podName . | quote }}
+        deploymentTime: {{ now | date "20060102T150405" | quote }}
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - {{ tpl .Values.am.podName . | quote }}
+              topologyKey: "kubernetes.io/hostname"
+      securityContext:
+        runAsUser: 10002
+        runAsGroup: 10002
+        fsGroup: 10002
+      hostAliases:
+        - ip: "127.0.0.1"
+          hostnames:
+          - {{ .Values.am.amSiteFqdn | quote }}
+          - {{ .Values.am.uri | quote }}
+      volumes:
+        - name: shared
+          emptyDir: {}
+      containers:
+      - name: {{ tpl .Values.am.podName . | quote }}
+        image: {{ tpl .Values.am.image . | quote }}
+        imagePullPolicy: {{ .Values.global.imgPullPolicy | default "Always" | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+        volumeMounts:
+          {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+          - name: shared
+            mountPath: {{ tpl .Values.fact.config_dir . | quote }} # DO NOT CHANGE
+          {{- end }}
+        resources:
+          requests:
+            cpu: {{ .Values.global.am.cpu | default "2000m" | quote }}
+            memory: {{ .Values.global.am.memory | default "4Gi" | quote }}
+          limits:
+            cpu: {{ .Values.global.am.cpu | default "2000m" | quote }}
+            memory: {{ .Values.global.am.memory | default "4Gi" | quote }}
+        startupProbe:
+          exec:
+            command:
+            - cat
+            - /opt/am/am_setup_done # DO NOT CHANGE
+          initialDelaySeconds: 60 # how long to wait before checking
+          failureThreshold: 600 # how many failures to accept before failing
+          periodSeconds: 5 # how long to wait between checks
+          timeoutSeconds: 3 # how long to wait for a response
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /{{ tpl .Values.am.uri . }}/json/health/live
+            port: {{ .Values.am.portHttps }}
+          initialDelaySeconds: 10 # how long to wait before checking
+          periodSeconds: 60 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 5 # how many failures to accept before failing
+          timeoutSeconds: 3 # how long to wait for a response
+        readinessProbe:
+          httpGet:
+            scheme: HTTPS 
+            path: /{{ .Values.am.uri }}/json/health/live
+            port: {{ .Values.am.portHttps }}
+          initialDelaySeconds: 10 # how long to wait before checking
+          periodSeconds: 10 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 30 # how many failures to accept before failing
+          timeoutSeconds: 3 # how long to wait for a response
+        envFrom:
+          - secretRef:
+              name: "{{ tpl .Values.am.secretName . }}"
+          - configMapRef:
+              name: "{{ tpl .Values.am.podName . }}"
+        env:
+          - name: SECRET_CERTIFICATE_US
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.userstore.secretName . }}"
+                key: SECRET_CERTIFICATE
+          - name: AM_STORES_USER_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.userstore.secretName . }}"
+                key: SECRET_PASSWORD_USER_AM
+          - name: SECRET_CERTIFICATE_TS
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.tokenstore.secretName . }}"
+                key: SECRET_CERTIFICATE
+          - name: AM_STORES_CTS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.tokenstore.secretName . }}"
+                key: SECRET_PASSWORD_USER_AM
+          - name: AM_STORES_UMA_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.tokenstore.secretName . }}"
+                key: SECRET_PASSWORD_USER_AM
+          - name: SECRET_CERTIFICATE_APS
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.aps.secretName . }}"
+                key: SECRET_CERTIFICATE
+          - name: AM_STORES_APPLICATION_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.aps.secretName . }}"
+                key: SECRET_PASSWORD_USER_AM
+          - name: AM_STORES_POLICY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ tpl .Values.aps.secretName . }}"
+                key: SECRET_PASSWORD_USER_AM
+        ports:
+          - name: http1
+            containerPort: 80
+            protocol: TCP
+          - name: http2
+            containerPort: {{ .Values.am.portHttp }}
+            protocol: TCP
+          - name: https1
+            containerPort: 443
+            protocol: TCP        
+          - name: https2
+            containerPort: {{ .Values.am.portHttps }}
+            protocol: TCP
+      {{- if hasPrefix "dev" (lower .Values.global.envType) }}
+      - name: {{ tpl .Values.fact.podName . | quote }}
+        image: {{ tpl .Values.fact.image . | quote }}
+        imagePullPolicy: {{ .Values.global.imgPullPolicy | default "Always" | quote }}
+        securityContext:
+          allowPrivilegeEscalation: false
+          privileged: false
+        volumeMounts:
+          - name: shared
+            mountPath: {{ tpl .Values.fact.config_dir . | quote }} # DO NOT CHANGE
+        resources:
+          requests:
+            cpu: {{ .Values.global.factCPU | default "500m" | quote }}
+            memory: {{ .Values.global.factMemory | default "1Gi" | quote }}
+          limits:
+            cpu: {{ .Values.global.factCPU | default "500m" | quote }}
+            memory: {{ .Values.global.factMemory | default "1Gi" | quote }}
+        startupProbe:
+          exec:
+            command:
+            - cat
+            - /opt/fact/fact-setup-done # DO NOT CHANGE
+          initialDelaySeconds: 60 # how long to wait before checking
+          failureThreshold: 360 # how many failures to accept before failing
+          periodSeconds: 10 # how long to wait between checks
+          timeoutSeconds: 3 # how long to wait for a response
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /
+            port: 8082
+          initialDelaySeconds: 40 # how long to wait before checking
+          periodSeconds: 10 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 60 # how many failures to accept before failing
+          timeoutSeconds: 3 # how long to wait for a response
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /
+            port: 8082
+          initialDelaySeconds: 40 # how long to wait before checking
+          periodSeconds: 60 # how long to wait between checks
+          successThreshold: 1 # how many successes to hit before accepting
+          failureThreshold: 60 # how many failures to accept before failing
+          timeoutSeconds: 3 # how long to wait for a response
+        envFrom:
+          - configMapRef:
+              name: "{{ tpl .Values.fact.configmapName . }}"
+        ports:
+        - name: http1
+          containerPort: {{ tpl .Values.fact.port . }}
+          protocol: TCP
+      {{- end }}
+      {{- if .Values.global.imgPullSecrets }}
+      imagePullSecrets:
+      - name: "{{ .Values.global.imgPullSecrets }}"
+      {{- end }}

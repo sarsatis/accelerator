@@ -1,0 +1,20 @@
+{
+  "metadata" : {
+    "realm" : "/Customer",
+    "entityType" : "",
+    "entityId" : "services",
+    "uid" : "ou=services,o=Customer,ou=services,ou=am-config",
+    "sunServiceID" : null,
+    "objectClass" : [ "top", "organizationalunit" ],
+    "pathParams" : { },
+    "ou" : null
+  },
+  "data" : {
+    "_id" : "services",
+    "_type" : {
+      "_id" : "",
+      "name" : "",
+      "collection" : false
+    }
+  }
+}

@@ -1,0 +1,1283 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+ 
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ===========================================================
+stages:
+- build-all-auto
+- build-base-manual
+- build-child-manual
+- deploy-non-app
+- deploy-apps-all
+- deploy-apps-single
+- remove
+
+variables:
+  AM_VAULT_RUNTIME_PATH: "forgerock/data/sit/runtime/access-manager"
+  AWS_ACCESS_KEY_ID: ""
+  AWS_SECRET_ACCESS_KEY: ""
+  AZURE_AKS_NAME: ""
+  AZURE_RESOURCE_GROUP_NAME: ""
+  AZURE_SUBSCRIPTION_ID: ""
+  BINARY_LOCATION: "sftp"
+  BUILDBASE_AM: "false"
+  BUILDBASE_DS: "false"
+  BUILDBASE_FACT: "false"
+  BUILDBASE_IDM: "false"
+  BUILDBASE_IG: "false"
+  BUILDBASE_JAVA: "false"
+  BUILDBASE_TOMCAT: "false"
+  BUILDCHILD_AM: "false"
+  BUILDCHILD_APS: "false"
+  BUILDCHILD_FACT: "false"
+  BUILDCHILD_IDM: "false"
+  BUILDCHILD_IG: "false"
+  BUILDCHILD_RS: "false"
+  BUILDCHILD_TS: "false"
+  BUILDCHILD_US: "false"
+  CI_REGISTRY_URL: "gcr.io/massive-dynamo-235117"
+  CLUSTER_ID: "1"
+  DEPLOY_AM: "false"
+  DEPLOY_APS: "false"
+  DEPLOY_IDM: "false"
+  DEPLOY_IG: "false"
+  DEPLOY_RS_ALL: "false"
+  DEPLOY_RS_APS: "false"
+  DEPLOY_RS_TS: "false"
+  DEPLOY_RS_US: "false"
+  DEPLOY_TS: "false"
+  DEPLOY_US: "false"
+  DOCKER_BUILDKIT: "0"
+  ENV_TYPE: "dev"
+  FR_KUBE_CONFIG: "YXBpVmVyc2lvbjogdjEKY2x1c3RlcnM6Ci0gY2x1c3RlcjoKICAgIGNlcnRpZmljYXRlLWF1dGhvcml0eS1kYXRhOiBMUzB0TFMxQ1JVZEpUaUJEUlZKVVNVWkpRMEZVUlMwdExTMHRDazFKU1VWTVZFTkRRWEJYWjBGM1NVSkJaMGxTUVUxRmFXYzRhMjFMWjNKT1kwOUpXRXA2YzNsNmFUUjNSRkZaU2t0dldrbG9kbU5PUVZGRlRFSlJRWGNLVEhwRmRFMURjMGRCTVZWRlFYaE5hMWw2WXpOT1IxRTBXbFJWZEUxdFJtbGFVekF3V2xkYWFFeFhSVEphUkdOMFRWUkpNRnBxWXpWYWFsVjNUMGRPYVFwTlEwRllSRlJKZVUxRVRYZFBWRVY2VGxSck1FMUdiMWxFZWtsM1RsUkpkMDE2UVhoTlZGRXhUMVJSZDFkcVFYWk5VekIzUzNkWlJGWlJVVVJGZVZKcUNrNTZZekJhUkdoc1RsTXdlVmxYU214TVZGSnNXbTFGZEZsVVdtdE9lVEI0VFdwU2JVNTZiRzFPVkVFMFdUSkpkMmRuUjJsTlFUQkhRMU54UjFOSllqTUtSRkZGUWtGUlZVRkJORWxDYW5kQmQyZG5SMHRCYjBsQ1oxRkRkVFY1UmpkRk5Tc3JSR0paTDJabVUzQjZla3hQYVV0VFEzRXhla05XU3pKTmN6UXpTQXA0UVRKV2FqbGliRlV2Y0U1b1FqVkliVzl3TWxCTlRuQmtka3A2VUZob1NGUjVNblJPYlRRNFFqTXpXVUU1WldoRlNEbHdWMHMwY2s1TVRHVjVaV05yQ2taS1ZuTnFaemRLVWtacVIycGxTM2hOUjA5Tk5scE9RVGRDVUZKc1RIQlhTMVJSVFdsTlRIQXpkMXBYUmpCTGVtZFBVVFZaUzAweE4waFRWWEJaV21jS09ITjZTbUl2TDNZMFZ6WkplalpEU0V0RmJXeElPRWxLUjNOd2VsWjNXa0oyWjFWRVpFcEthMWhuVm1oS2RVMXBRME40ZVM5SmVqaHhaVVZJZVhKT05BcHpjVEZ3VlRFM1NFMVNaREVyUlZWUVZuZEpRVXMzV0d0MmVGTk5XRTlSV0ZWQ1EwSXJSVmRNYW1Wa1EwcFplbTVwZGtrNFdGWktVRTFNVm0xRVppOVlDbFZMVkZWV1lYbDBWemxFY1RWallrOHdXVU55UWpaSWRITlVlSG95UlNzME5tSm1PR3hKV0c5Vk1rdEdZak5KUm1jMVUweHRTbnBHU2prdmIwcHNjR1lLY25SYU1ETm1abWREWjNGUmFVMDJSQzlOV25SRGEydHZabVJoYkZaalpYRnNhV1pXWjNWWGJVZHBUaXN3WTI1Ull6SjNiMEoxUmpoT2IxVTFUalV6WWdwNVVrUXlNVkphWlVRclR6ZFJWMjlRTmpFNWJEaExiSEJLSzNCemNYZEZlblFyVDFGMkwxZHJSRzF5VmpGRE4zRnpja3hVY2xOeFNVVTNOSFpqYmpOU0NrbHVlbmxyVVZkR1lYRmFOM1FyVlZCSE1rb3hla2RxUjJka2EwTkJkMFZCUVdGT1EwMUZRWGRFWjFsRVZsSXdVRUZSU0M5Q1FWRkVRV2RKUlUxQk9FY0tRVEZWWkVWM1JVSXZkMUZHVFVGTlFrRm1PSGRJVVZsRVZsSXdUMEpDV1VWR1RGQlJaR2xFVWt0VGJrUXJWbFJNY1ZWcVZIaHRPVnBVY1RWRVRVRXdSd3BEVTNGSFUwbGlNMFJSUlVKRGQxVkJRVFJKUW1kUlFuQk9VbkpxWldSS01EaDFiVXR5TldWNlFqQlVPVGg2VHpaNFRHSXJiVXREWVhJNFFrZDBhekpyQ2tzMkswdDBlRlJEV1dOVGNVUmpTMEp1ZDFBeGVuZG9RVmxVTUV3MFVFc3dNelZNS3pkelFXcFNabE4zYzA5dVZXaDRPQzlyYVhwRllrcHlkRFZ1Y0V3S01GUm9aMjVOZGpRMWJVUnlRMlJEWTJaMFluZHNOVkJ4VTJ0WGNYUk9XbE0xWWpaTGVsVXJkemRUWVhoMmFrRlNNbEZWUzBGR1ZtbDFNUzkzTmpWaVNncDFlSE5uZEVSMVJUVkRObXR4VURORGNGVkpPV2t6UldkNVVYUjJiRUpOVnpWSU5HSnhPVGwyWlU1TVUzRnlXbE4yVjJWMldGTTJSRTFaZDFwMGFYZzVDaTk0VlZkVVRuQlRWVTR3UnpGMVN6QTRVRE5YZFZsYVFuZFFlWEpGUWpkdVdtWjFaRUowY1V4aFZHbHhZMFUwYlRGRmNtOWFWR042TWtabk0xazFkellLTVRadGVsRmpVWFFyZEU5RFJrSlZXbGxHYkhGdlVrNWpXQzlvWVVVeVVFUllTRGxvT1hCVlpqZFNka0ZhT0RodlMxSTViMDlNYVhaSGJsaGlNbUZ4VGdweU0zUTFUbXRZUkZScmNUazRlVTE2TlVReGRFWnlNRXRPV0doeGRUUnphM2RoWlcxUE9FWndOVWxLTjAxRU9IbElTVlV2WlhKUU9YVXdaVEZsZEdKRkNuaG5OVzh6TkhJeVVFTm9ibGN3VkRkUVlqRnpaRFZDWVVOWmJXczNUQ3RyTkhobWNHWlpNVzF5V25KTFNFcGFhbk5RYWxwWFNXMXJVVTlDWlcxSVNHMEtjVGxJY1VvMlFURndlV1JpY1ROR09VOTFWMU53UW5NOUNpMHRMUzB0UlU1RUlFTkZVbFJKUmtsRFFWUkZMUzB0TFMwSwogICAgc2VydmVyOiBodHRwczovLzM1LjE5MC4xNzkuMTExCiAgbmFtZTogZ2tlX21hc3NpdmUtZHluYW1vLTIzNTExN191cy1lYXN0MS1jX21pZHNoaXBzLWRldi0xCmNvbnRleHRzOgotIGNvbnRleHQ6CiAgICBjbHVzdGVyOiBna2VfbWFzc2l2ZS1keW5hbW8tMjM1MTE3X3VzLWVhc3QxLWNfbWlkc2hpcHMtZGV2LTEKICAgIHVzZXI6IGdrZV9tYXNzaXZlLWR5bmFtby0yMzUxMTdfdXMtZWFzdDEtY19taWRzaGlwcy1kZXYtMQogIG5hbWU6IGdrZV9tYXNzaXZlLWR5bmFtby0yMzUxMTdfdXMtZWFzdDEtY19taWRzaGlwcy1kZXYtMQpjdXJyZW50LWNvbnRleHQ6IGdrZV9tYXNzaXZlLWR5bmFtby0yMzUxMTdfdXMtZWFzdDEtY19taWRzaGlwcy1kZXYtMQpraW5kOiBDb25maWcKcHJlZmVyZW5jZXM6IHt9CnVzZXJzOgotIG5hbWU6IGdrZV9tYXNzaXZlLWR5bmFtby0yMzUxMTdfdXMtZWFzdDEtY19taWRzaGlwcy1kZXYtMQogIHVzZXI6CiAgICBleGVjOgogICAgICBhcGlWZXJzaW9uOiBjbGllbnQuYXV0aGVudGljYXRpb24uazhzLmlvL3YxYmV0YTEKICAgICAgY29tbWFuZDogZ2tlLWdjbG91ZC1hdXRoLXBsdWdpbgogICAgICBpbnN0YWxsSGludDogSW5zdGFsbCBna2UtZ2Nsb3VkLWF1dGgtcGx1Z2luIGZvciB1c2Ugd2l0aCBrdWJlY3RsIGJ5IGZvbGxvd2luZwogICAgICAgIGh0dHBzOi8vY2xvdWQuZ29vZ2xlLmNvbS9ibG9nL3Byb2R1Y3RzL2NvbnRhaW5lcnMta3ViZXJuZXRlcy9rdWJlY3RsLWF1dGgtY2hhbmdlcy1pbi1na2UKICAgICAgcHJvdmlkZUNsdXN0ZXJJbmZvOiB0cnVlCg=="
+  FR_KUBE_CONFIG2: "YXBpVmVyc2lvbjogdjEKY2x1c3RlcnM6Ci0gY2x1c3RlcjoKICAgIGNlcnRpZmljYXRlLWF1dGhvcml0eS1kYXRhOiBMUzB0TFMxQ1JVZEpUaUJEUlZKVVNVWkpRMEZVUlMwdExTMHRDazFKU1VWTVZFTkRRWEJYWjBGM1NVSkJaMGxTUVUwdk4yWkhiRlEzVWtseWFrbFdVVXhrWmtZMWRrVjNSRkZaU2t0dldrbG9kbU5PUVZGRlRFSlJRWGNLVEhwRmRFMURjMGRCTVZWRlFYaE5hMDVIUm1sYVZHZDRXbTFOZEZwdFdUVk5VekF3VDBSSk1FeFVaekphUjAxMFQxZE5lVmxxUVRSWmVsRXdXVlJyTVFwTlEwRllSRlJKZVUxRVRYcE5WRUV6VFhwRmQwNXNiMWxFZWtsM1RsUkpkMDE2U1hwTlJHZDZUVlJCTWxkcVFYWk5VekIzUzNkWlJGWlJVVVJGZVZFd0NsbFhTbXhQUkVadFdYa3hiVnBxYTNoTVZGRTBUV3BSZEU5RVdtdFplVEExV1hwS2FVMUVhR3BPUkZKb1QxUlZkMmRuUjJsTlFUQkhRMU54UjFOSllqTUtSRkZGUWtGUlZVRkJORWxDYW5kQmQyZG5SMHRCYjBsQ1oxRkRkbGMwTUd0MFUwMVdLMVJyTDB4T1ZVNUhjV2dyWnpFMGNrVjJPSEIwVDAxbFRVazRLd3BwUVZCbVFUUlJVek5rYTFBNGRHTkpRekJzTjBKMWFuRkhTWEk0YUUxSWFFdzBZVE01ZURGelJtOUpRVGRTYjBzdlNEWkplazB3VEdndlJXOU1aVVZYQ2xoRVkxZG5XRE54U0UxT04xZG1TMjk2T1ROTFRWSTRMMGhRTjNaU2NHaERhVWt5YjBkc2NISTFMMnBsTjJkd1FYRm1TSEV2VjJodU1FcHZTMDR3VVNzS09IWlpZVXRaV0ROelExVmpabmRNVDBScFJXZFBPR05pZGswelRWTklkVms0T1d0dmVGTjROWHBrYVhCdmJsVmlObmxIVFVWamNHWlVRalpMWlVoV1dBcFBSQ3QyTkdWdlZVazFVa1o1U25oYWMwSm9NR3R6TURsb1NXRmlWMmhhT0V4YVZVZFNiMXBEVm5aSlJqWnNSelEwYjFCalZFSnJhakJtY1Rob1pWbzJDbGc0TUVwVU0wOWhOVWh3Y1RKV1lsYzNSMnBWYkUxNU1HVjRSbWR6WlVaTk56UnplRzE1Y2pOSGEyeEhSR3hYTldGa1YxRkVjalJ4ZDBKc2VITlNNMVVLVTB3emRHNUxOWEkzT0ZwWk0wTTBkMDFTTlZOS2JFRm5XWGd6YjNneU5FRTRhR280TDJWS2F6Qk5SVUZJTTBSQmFEVlFRMHBFWVhabVVESldTRmR2VWdwbFdVWkRRVTlWYVM4eVozZElZbWcxVkhZd2VWZDRRM1JHWW05WlJrMVZNVVZvZW1GTlExRnpkMnhHVVV4eWVsVXZWMHhIWkhsMFltZDNVMjU1Y2s1QkNsaHNaMVZrWlZSTVNrazJOamRLVFRkM1pHdHVUV0kzVlhWNE1FTkJkMFZCUVdGT1EwMUZRWGRFWjFsRVZsSXdVRUZSU0M5Q1FWRkVRV2RKUlUxQk9FY0tRVEZWWkVWM1JVSXZkMUZHVFVGTlFrRm1PSGRJVVZsRVZsSXdUMEpDV1VWR1JrOVBObkp0Tkd3eU5YWlliWFJsTHk5UU5uQkVjV0ZWVlN0VlRVRXdSd3BEVTNGSFUwbGlNMFJSUlVKRGQxVkJRVFJKUW1kUlEybEpTM04zTjJSamJ6ZHpVVXhXVVhWemRtbFhVR2g0VjFKM1RtNHJTSEZDTVhwNlkyZDNhak41Q2xKb1RsSkVNVE5MWVhZMk1uZzNXbGRDYzA1S1NrTm9SVzlEUlM4eFpEZGFSM1pOWmxkeVNGbEVkbWxuY1RFd1VTdENMemhaVVRWblREaFpkMFJ2VURFS2JHNTVSMVV3TWt4WFNqaGFSbm96VG1oSFFWbFRSa0ZvTW1oRVZWYzRlV1ZxWVZCbllWa3JlVmRrWmt0NVNtbFJUa2RpWmxWRmNuZGFabGRFTVZoMFNRcHRRVWt3VkV4VGJXd3hPVzFCUWtSNVRtNUZSVmM1Y1V3NGVFdGpZa3g1U1ZwSU1VOWhUbHBUU1U1WlpVSmpXa2hQTDBsTU1HdGpZbmx3SzBGdmRVWkRDakpsTm5WellUTlFWMHMxVm1WdVkzbFpLMk13VGtoSU1tbFJXbEl5WkVkNmRtNHpWMmRSYkhGSVZrVnhNeTl6UkUxUU9XdHFRMUp0ZDIxUWNHTklkVVVLT0VSSlJHVkpRV0l6VlZweFpXUXhXbloxWjBwdFpsTkRMMmM1VGtVd1YydDVLekpNUzFJeGRrdDZOR1V5U3psMk9YRm5SMWRsWVV4U0swaFBNRUV5T1Fwc1NUWlRhalZCYUZaTlVra3ZZbXB0ZFNzNE5taEVSWGhrTkhaa1VHRXhORGd6UWtKMU5DczBTemRGUmsxVmRGcHliRlIxUlRKU2JURnFVSGt4Wnl0SkNsWm9UR0YzZFZScVFUTlVURGxCVWpsR1NqSmlORGhUV1dnd1FsaGpWRE5CTlhBclV6aGlia1ZrVFROblVUUldPREJwUkVOc2EzSnFXR3BaYldoNVVrOEthRTlxYUZvMlpuQldLek5LU0VSb1FrOHdSblJKY1hjOUNpMHRMUzB0UlU1RUlFTkZVbFJKUmtsRFFWUkZMUzB0TFMwSwogICAgc2VydmVyOiBodHRwczovLzM1LjI0MS4xNzUuMjMwCiAgbmFtZTogZ2tlX21hc3NpdmUtZHluYW1vLTIzNTExN19ldXJvcGUtd2VzdDEtY19taWRzaGlwcy1kZXYtMgpjb250ZXh0czoKLSBjb250ZXh0OgogICAgY2x1c3RlcjogZ2tlX21hc3NpdmUtZHluYW1vLTIzNTExN19ldXJvcGUtd2VzdDEtY19taWRzaGlwcy1kZXYtMgogICAgdXNlcjogZ2tlX21hc3NpdmUtZHluYW1vLTIzNTExN19ldXJvcGUtd2VzdDEtY19taWRzaGlwcy1kZXYtMgogIG5hbWU6IGdrZV9tYXNzaXZlLWR5bmFtby0yMzUxMTdfZXVyb3BlLXdlc3QxLWNfbWlkc2hpcHMtZGV2LTIKY3VycmVudC1jb250ZXh0OiBna2VfbWFzc2l2ZS1keW5hbW8tMjM1MTE3X2V1cm9wZS13ZXN0MS1jX21pZHNoaXBzLWRldi0yCmtpbmQ6IENvbmZpZwpwcmVmZXJlbmNlczoge30KdXNlcnM6Ci0gbmFtZTogZ2tlX21hc3NpdmUtZHluYW1vLTIzNTExN19ldXJvcGUtd2VzdDEtY19taWRzaGlwcy1kZXYtMgogIHVzZXI6CiAgICBleGVjOgogICAgICBhcGlWZXJzaW9uOiBjbGllbnQuYXV0aGVudGljYXRpb24uazhzLmlvL3YxYmV0YTEKICAgICAgY29tbWFuZDogZ2tlLWdjbG91ZC1hdXRoLXBsdWdpbgogICAgICBpbnN0YWxsSGludDogSW5zdGFsbCBna2UtZ2Nsb3VkLWF1dGgtcGx1Z2luIGZvciB1c2Ugd2l0aCBrdWJlY3RsIGJ5IGZvbGxvd2luZwogICAgICAgIGh0dHBzOi8vY2xvdWQuZ29vZ2xlLmNvbS9ibG9nL3Byb2R1Y3RzL2NvbnRhaW5lcnMta3ViZXJuZXRlcy9rdWJlY3RsLWF1dGgtY2hhbmdlcy1pbi1na2UKICAgICAgcHJvdmlkZUNsdXN0ZXJJbmZvOiB0cnVlCg=="
+  GCP_K8S_CLUSTER_NAME: "midships-dev-1"
+  GCP_K8S_ZONE: "us-east1-c"
+  GCP_PROJECTID: "massive-dynamo-235117"
+  IMAGE_PULL_SECRETS: "fr-nexus-docker"
+  K8S_CLUSTER_DOMAIN: "cluster.local"
+  K8S_LOCATION: "gcp"
+  POD_MANAGEMENT_POLICY: Parallel
+  PODNAME_AM: "forgerock-access-manager"
+  PODNAME_APS: "forgerock-app-policy-store"
+  PODNAME_IDM: "forgerock-idm"
+  PODNAME_IG: "forgerock-ig"
+  PODNAME_RS: "forgerock-repl-server"
+  PODNAME_TS: "forgerock-token-store"
+  PODNAME_US: "forgerock-user-store"
+  REPLICAS_AM: "2"
+  REPLICAS_APS: "2"
+  REPLICAS_IDM: "2"
+  REPLICAS_IG: "1"
+  REPLICAS_RS: "2"
+  REPLICAS_TS: "2"
+  REPLICAS_US: "2"
+  SECRETS_MANAGER_PATH_AM: "forgerock/data/fr7/access-manager"
+  SECRETS_MANAGER_PATH_APS: "forgerock/data/fr7/app-policy-store"
+  SECRETS_MANAGER_PATH_IDM: "forgerock/data/fr7/idm"
+  SECRETS_MANAGER_PATH_IG: "forgerock/data/fr7/ig"
+  SECRETS_MANAGER_PATH_RS: "forgerock/data/fr7/repl-server"
+  SECRETS_MANAGER_PATH_TS: "forgerock/data/fr7/token-store"
+  SECRETS_MANAGER_PATH_US: "forgerock/data/fr7/user-store"
+  SECRETS_MANAGER_TOKEN: "s.lvsd4kRuQmUfwY3m4glZ19km.MV86dhvs.CAESIBL90pHuoCzvrDsv_Nnfef8syLJx0nh0cVuCyduFlzgoGikKImh2cy5OU1ZJbXMwanFyZHhsTzV2bU5OTXFZVlAuTVY4NmQQsazyAQ"
+  SECRETS_MODE: "volume"
+  STORAGE_BUCKET_PATH_BIN: "sftp://ruhles.freeddns.org:22100"
+  VAULT_ADDR: "https://midships-vault.vault.6ab12ea5-c7af-456f-81b5-e0aaa5c9df5e.aws.hashicorp.cloud:8200"
+  FR_VERSION: "7.4"
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      variables:
+        IMAGES_TAG_SRC: ${FR_VERSION}.${CI_COMMIT_BRANCH}
+        IMAGES_TAG_DEST: ${FR_VERSION}.${CI_COMMIT_BRANCH}
+        NAMESPACE: "forgerock"
+    - if: $CI_COMMIT_TAG != null
+      variables:
+        IMAGES_TAG_SRC: ${FR_VERSION}.${CI_COMMIT_TAG}
+        IMAGES_TAG_DEST: ${FR_VERSION}.${CI_COMMIT_TAG}
+        NAMESPACE: "forgerock"
+    - if: $CI_COMMIT_BRANCH != "main" && $CI_COMMIT_TAG == null
+      variables:
+        IMAGES_TAG_SRC: ${FR_VERSION}.${CI_COMMIT_REF_SLUG}
+        IMAGES_TAG_DEST: ${FR_VERSION}.${CI_COMMIT_REF_SLUG}
+        NAMESPACE: forgerock-${CI_COMMIT_REF_SLUG}
+
+
+# Hidden job starts with dot. Will not display in UI
+.99-build-all-sequential:
+  # image: alpine:3.10
+  image: docker:latest
+  stage: build-all-auto
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_JAVA="true"
+    BUILDBASE_TOMCAT="true"
+    BUILDBASE_AM="true"
+    BUILDBASE_DS="true"
+    BUILDBASE_IDM="true"
+    BUILDBASE_FACT="true"
+    BUILDBASE_IG="true"
+    BUILDCHILD_RS="true"
+    BUILDCHILD_APS="true"
+    BUILDCHILD_US="true"
+    BUILDCHILD_TS="true"
+    BUILDCHILD_AM="true"
+    BUILDCHILD_IDM="true"
+    BUILDCHILD_FACT="true"
+    BUILDCHILD_IG="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+
+#[ Build all images - Start ]
+all-base-java:
+  image: docker:latest
+  stage: build-all-auto
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_JAVA="true"
+    rm -f ./all-base-java-job-success
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+    echo "manual-exec"
+    echo "job-success" > ./all-base-java-job-success
+  artifacts:
+    paths:
+    - all-base-java-job-success
+    expire_in: 1h0min
+all-base-tomcat:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-java
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    counter=0; sleepSecs=10; totalWaitSecs=120;
+    while [ ! -f "./all-base-java-job-success" ] && [ "${counter}" -le ${totalWaitSecs} ]; do counter=$((counter + sleepSecs)); echo "-- ${counter}/${totalWaitSecs} Waiting for ./all-base-java-job-success";  sleep 10; [ "${counter}" -ge "${totalWaitSecs}" ] && exit 1; done
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_TOMCAT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-base-ds:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-java
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    counter=0; sleepSecs=10; totalWaitSecs=120;
+    while [ ! -f "./all-base-java-job-success" ] && [ "${counter}" -le ${totalWaitSecs} ]; do counter=$((counter + sleepSecs)); echo "-- ${counter}/${totalWaitSecs} Waiting for ./all-base-java-job-success";  sleep 10; [ "${counter}" -ge "${totalWaitSecs}" ] && exit 1; done
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_DS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-base-idm:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-java
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    counter=0; sleepSecs=10; totalWaitSecs=120;
+    while [ ! -f "./all-base-java-job-success" ] && [ "${counter}" -le ${totalWaitSecs} ]; do counter=$((counter + sleepSecs)); echo "-- ${counter}/${totalWaitSecs} Waiting for ./all-base-java-job-success";  sleep 10; [ "${counter}" -ge "${totalWaitSecs}" ] && exit 1; done
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_IDM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-base-ig:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-tomcat
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_IG="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-base-am:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-tomcat
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_AM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-base-fact:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-am
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_FACT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-am:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-am
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_AM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-rs:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-ds
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_RS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-aps:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-ds
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_APS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-us:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-ds
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_US="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-ts:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-ds
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_TS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-idm:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-idm
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_IDM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-fact:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-fact
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_FACT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+all-child-ig:
+  image: docker:latest
+  stage: build-all-auto
+  needs:
+    - job: all-base-ig
+      optional: true
+  services:
+  - docker:dind
+  when: on_success
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_IG="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+#[ Build all images - End ]
+
+#[ Build single Base image - Start ]
+base-java:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_JAVA="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-tomcat:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_TOMCAT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-ds:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_DS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-idm:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_IDM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-fact:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_FACT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-ig:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_IG="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+base-am:
+  image: docker:latest
+  stage: build-base-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    # apk update && apk add docker-cli
+    apk add --no-cache --upgrade bash
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDBASE_AM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+#[ Build single Base image - Start ]
+
+#[ Build single Child image - Start ]
+child-am:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_AM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-rs:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_RS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-aps:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_APS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-us:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_US="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-ts:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_TS="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-idm:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_IDM="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-fact:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_FACT="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+child-ig:
+  image: docker:latest
+  stage: build-child-manual
+  services:
+  - docker:dind
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    apk add --no-cache --upgrade bash
+    apk add jq
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh login || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    BUILDCHILD_IG="true"
+    chmod 770 scripts/cicd/build-docker-image-all.sh
+    scripts/cicd/build-docker-image-all.sh build || exit 1
+#[ Build single Child image - End ]
+
+#[ Clear environment - Start ]
+remove-namespace:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "all" || exit 1
+remove-apps-all:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export REMOVE_APP_AM="true"
+    export REMOVE_APP_APS="true"
+    export REMOVE_APP_US="true"
+    export REMOVE_APP_TS="true"
+    export REMOVE_APP_IDM="true"
+    export REMOVE_APP_IG="true"
+    export REMOVE_APP_RS="true"
+    export REMOVE_APP_RS_APS="true"
+    export REMOVE_APP_RS_US="true"
+    export REMOVE_APP_RS_TS="true"
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "apps" || exit 1
+remove-services-all:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "svc" || exit 1
+remove-configs:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "configs" || exit 1
+remove-secrets:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "secrets" || exit 1
+remove-secrets-configs:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: remove
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/remove-all.sh
+    scripts/cicd/remove-all.sh "secrets-configs" || exit 1
+#[ Clear environment - End ]
+
+#[ Deploy pre-reqs - Start ]
+deploy-pre-reqs:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-non-app
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/deploy-cluster-prereqs.sh
+    scripts/cicd/deploy-cluster-prereqs.sh || exit 1
+deploy-configs:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-non-app
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/deploy-secrets-and-configs.sh
+    scripts/cicd/deploy-secrets-and-configs.sh "true" "false" || exit 1
+deploy-secrets:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-non-app
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/deploy-secrets-and-configs.sh
+    scripts/cicd/deploy-secrets-and-configs.sh "false" "true" || exit 1
+deploy-secrets-configs:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-non-app
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/deploy-secrets-and-configs.sh
+    scripts/cicd/deploy-secrets-and-configs.sh "true" "true" || exit 1
+deploy-services-all:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-non-app
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    chmod 770 scripts/cicd/deploy-services-all.sh
+    scripts/cicd/deploy-services-all.sh || exit 1
+#[ Deploy pre-reqs - End ]
+
+deploy-apps-all:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-all
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export DEPLOY_AM="true"
+    export DEPLOY_APS="true"
+    export DEPLOY_RS_ALL="true"
+    export DEPLOY_TS="true"
+    export DEPLOY_US="true"
+    export DEPLOY_IDM="true"
+    export DEPLOY_IG="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+
+#[ Deploy Apps - Start ]
+deploy-rs-all:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_RS_APS="true"
+    export DEPLOY_RS_TS="true"
+    export DEPLOY_RS_US="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-rs-aps:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_RS_APS="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-rs-ts:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_RS_TS="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-rs-us:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_RS_US="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-us:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_US="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-ts:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_TS="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-aps:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_APS="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-am:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_AM="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-idm:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_IDM="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-ig:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_IG="true"
+    chmod 770 scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+deploy-am-green:
+  image: gcr.io/google.com/cloudsdktool/google-cloud-cli:debian_component_based
+  stage: deploy-apps-single
+  when: manual
+  tags:
+  - docker
+  before_script:
+  - |
+    chmod 770 scripts/cicd/cicd-operations.sh
+    scripts/cicd/cicd-operations.sh setup-tools || exit 1
+  variables: 
+    ErrorActionPreference: stop 
+  script:
+  - |
+    source ~/.bashrc
+    export PODNAME_AM="${PODNAME_AM}-green"
+    echo "-> Adding/Updating AM Green K8s Secrets"
+    echo "   PODNAME_AM: ${PODNAME_AM}"
+    cd deploy/helm/secrets/
+    helm template \
+      --set global.clusterId="dc${CLUSTER_ID}" \
+      --set global.envType="${ENV_TYPE}" \
+      --set general.namespace="${NAMESPACE}" \
+      --set global.baseNameAM="${PODNAME_AM}" \
+      --namespace "${NAMESPACE}" \
+      -s templates/secrets-am.yaml . \
+      | kubectl apply -f -
+    echo "-- Done"
+    echo " "
+
+    echo "[** Preparing to Deploy Access Manager (AM) - Green **]"
+    cd ../../
+    export POD_MANAGEMENT_POLICY="OrderedReady"
+    export DEPLOY_AM="true"
+    chmod 660 scripts/cicd/deploy-component-all.sh
+    chmod +x scripts/cicd/deploy-component-all.sh
+    scripts/cicd/deploy-component-all.sh || exit 1
+#[ Deploy Apps - End ]

@@ -1,0 +1,227 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+
+# [ Properties: additional info ]
+# rs_list_inter_cluster
+# rs_list_intra_cluster
+#^-- Comma separated Replication Server (RS) domains/hostnames for replication.
+  #    Only used when INTER_CLUSTER_REPL_ON is true'.
+  #    Format is '{hostname1}:{replication-port},{hostname2}:{replication-port}'
+  
+replserver:
+  aps:
+    backup_backend: "true"
+    backup_before_upgrade: "true"
+    backup_frequency: "monthly"
+    cert_alias: "repl-server-aps"
+    configmapName: "{{ .Values.global.baseNameRS }}-aps-{{ .Values.global.clusterId }}"
+    disable_insecure_comms: "true"
+    dn_admin: "cn=Root User"
+    dn_base: "N/A" # Not used for RS
+    ds_type: "rs-aps"
+    inter_cluster_repl_on: "true"
+    load_custom_ds_config: "false"
+    load_custom_java_props: "true"
+    load_schema: "N/A"
+    log_mode: "file"
+    podName: "{{ .Values.global.baseNameRS }}-aps-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-aps-{{ .Values.global.clusterId2 }}"
+    port_admin: "4444"
+    port_http: "8080"
+    port_https: "8443"
+    port_ldap: "1389"
+    port_ldaps: "1636"
+    port_replication: "8991"
+    protocol_rest: "https"
+    replication_admin_uid: "admin"
+    rs_list_inter_cluster: "{{ tpl .Values.replserver.aps.rsSvcUrl1_inter . }}:{{ .Values.replserver.aps.port_replication }},{{ tpl .Values.replserver.aps.rsSvcUrl2_inter . }}:{{ .Values.replserver.aps.port_replication }},{{ tpl .Values.replserver.aps.rsSvcUrl3_inter . }}:{{ .Values.replserver.aps.port_replication }}"
+    rs_list_intra_cluster: "N/A" # Not used for RS
+    rsSvcUrl1_inter: "{{ tpl .Values.replserver.aps.podNameDc2 . }}-0.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl1_intra: "{{ tpl .Values.replserver.aps.podName . }}-0.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_inter: "{{ tpl .Values.replserver.aps.podNameDc2 . }}-1.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_intra: "{{ tpl .Values.replserver.aps.podName . }}-1.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_inter: "{{ tpl .Values.replserver.aps.podNameDc2 . }}-2.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_intra: "{{ tpl .Values.replserver.aps.podName . }}-2.{{ tpl .Values.replserver.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    self_replicate: "N/A" # Not used for RS
+    serviceName: "{{ .Values.global.serviceNameRS }}-aps"
+    threshold_disk_full: "5gb"
+    threshold_disk_full: "5gb"
+    threshold_disk_low: "10gb"
+  ts:
+    backup_backend: "true"
+    backup_before_upgrade: "true"
+    backup_frequency: "monthly"
+    cert_alias: "repl-server-ts"
+    configmapName: "{{ .Values.global.baseNameRS }}-ts-{{ .Values.global.clusterId }}"
+    disable_insecure_comms: "true"
+    dn_admin: "cn=Root User"
+    dn_base: "N/A" # Not used for RS
+    ds_type: "rs-ts"
+    inter_cluster_repl_on: "true"
+    load_custom_ds_config: "false"
+    load_custom_java_props: "true"
+    load_schema: "N/A"
+    log_mode: "file"
+    podName: "{{ .Values.global.baseNameRS }}-ts-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-ts-{{ .Values.global.clusterId2 }}"
+    port_admin: "4444"
+    port_http: "8080"
+    port_https: "8443"
+    port_ldap: "1389"
+    port_ldaps: "1636"
+    port_replication: "8990"
+    protocol_rest: "https"
+    replication_admin_uid: "admin"
+    rs_list_inter_cluster: "{{ tpl .Values.replserver.ts.rsSvcUrl1_inter . }}:{{ .Values.replserver.ts.port_replication }},{{ tpl .Values.replserver.ts.rsSvcUrl2_inter . }}:{{ .Values.replserver.ts.port_replication }},{{ tpl .Values.replserver.ts.rsSvcUrl3_inter . }}:{{ .Values.replserver.ts.port_replication }}"
+    rs_list_intra_cluster: "N/A" # Not used for RS
+    rsSvcUrl1_inter: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-0.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl1_intra: "{{ tpl .Values.replserver.ts.podName . }}-0.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_inter: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-1.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_intra: "{{ tpl .Values.replserver.ts.podName . }}-1.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_inter: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-2.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_intra: "{{ tpl .Values.replserver.ts.podName . }}-2.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    self_replicate: "N/A" # Not used for RS
+    serviceName: "{{ .Values.global.serviceNameRS }}-ts"
+    threshold_disk_full: "5gb"
+    threshold_disk_low: "10gb"
+  us:
+    backup_backend: "true"
+    backup_before_upgrade: "true"
+    backup_frequency: "monthly"
+    cert_alias: "repl-server-us"
+    configmapName: "{{ .Values.global.baseNameRS }}-us-{{ .Values.global.clusterId }}"
+    disable_insecure_comms: "true"
+    dn_admin: "cn=Root User"
+    dn_base: "N/A" # Not used for RS
+    ds_type: "rs-us"
+    inter_cluster_repl_on: "true"
+    load_custom_ds_config: "false"
+    load_custom_java_props: "true"
+    load_schema: "N/A"
+    log_mode: "file"
+    podName: "{{ .Values.global.baseNameRS }}-us-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-us-{{ .Values.global.clusterId2 }}"
+    port_admin: "4444"
+    port_http: "8080"
+    port_https: "8443"
+    port_ldap: "1389"
+    port_ldaps: "1636"
+    port_replication: "8989"
+    protocol_rest: "https"
+    replication_admin_uid: "admin"
+    rs_list_inter_cluster: "{{ tpl .Values.replserver.us.rsSvcUrl1_inter . }}:{{ .Values.replserver.us.port_replication }},{{ tpl .Values.replserver.us.rsSvcUrl2_inter . }}:{{ .Values.replserver.us.port_replication }},{{ tpl .Values.replserver.us.rsSvcUrl3_inter . }}:{{ .Values.replserver.us.port_replication }}"
+    rs_list_intra_cluster: "N/A" # Not used for RS
+    rsSvcUrl1_inter: "{{ tpl .Values.replserver.us.podNameDc2 . }}-0.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl1_intra: "{{ tpl .Values.replserver.us.podName . }}-0.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_inter: "{{ tpl .Values.replserver.us.podNameDc2 . }}-1.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl2_intra: "{{ tpl .Values.replserver.us.podName . }}-1.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_inter: "{{ tpl .Values.replserver.us.podNameDc2 . }}-2.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    rsSvcUrl3_intra: "{{ tpl .Values.replserver.us.podName . }}-2.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    self_replicate: "N/A" # Not used for RS
+    serviceName: "{{ .Values.global.serviceNameRS }}-us"
+    threshold_disk_full: "5gb"
+    threshold_disk_low: "10gb"
+userstore:
+  backup_backend: "true"
+  backup_before_upgrade: "true"
+  backup_frequency: "monthly"
+  cert_alias: "user-store"
+  configmapName: "{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}"
+  disable_insecure_comms: "true"
+  dn_admin: "cn=Root User"
+  dn_base: "ou=identities" # for instance "ou=identities"
+  ds_type: "us"
+  load_custom_ds_config: "false"
+  load_custom_java_props: "true"
+  load_schema: "true"
+  log_mode: "stdout"
+  podName: "{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}"
+  port_admin: "4444"
+  port_http: "8080"
+  port_https: "8443"
+  port_ldap: "1389"
+  port_ldaps: "1636"
+  port_replication: "8989"
+  protocol_rest: "https"
+  replication_admin_uid: "admin"
+  repo_add_idm: "true"
+  repo_domain: "company.com"
+  rs_list_intra_cluster: "{{ tpl .Values.replserver.us.rsSvcUrl1_intra . }}:{{ .Values.replserver.us.port_replication }},{{ tpl .Values.replserver.us.rsSvcUrl2_intra . }}:{{ .Values.replserver.us.port_replication }},{{ tpl .Values.replserver.us.rsSvcUrl3_intra . }}:{{ .Values.replserver.us.port_replication }}"
+  self_replicate: "{{ .Values.global.userstore.self_replicate }}" # Set to 'false' when using single instance or external Replication server. Acccepted values 'true' or 'false'
+  serviceName: "{{ .Values.global.serviceNameUS }}"
+  threshold_disk_full: "5gb"
+  threshold_disk_low: "10gb"
+tokenstore:
+  backup_backend: "true"
+  backup_before_upgrade: "true"
+  backup_frequency: "daily"
+  cert_alias: "token-store"
+  configmapName: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}"
+  disable_insecure_comms: "true"
+  dn_admin: "cn=Root User"
+  dn_base: "ou=tokens" # for instance "ou=tokens"
+  ds_type: "ts"
+  load_custom_ds_config: "false"
+  load_custom_java_props: "true"
+  load_schema: "false"
+  log_mode: "file"
+  podName: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}"
+  port_admin: "4444"
+  port_http: "8080"
+  port_https: "8443"
+  port_ldap: "1389"
+  port_ldaps: "1636"
+  port_replication: "8990"
+  protocol_rest: "https"
+  replication_admin_uid: "admin"
+  rs_list_intra_cluster: "{{ tpl .Values.replserver.ts.rsSvcUrl1_intra . }}:{{ .Values.replserver.ts.port_replication }},{{ tpl .Values.replserver.ts.rsSvcUrl2_intra . }}:{{ .Values.replserver.ts.port_replication }},{{ tpl .Values.replserver.ts.rsSvcUrl3_intra . }}:{{ .Values.replserver.ts.port_replication }}"
+  self_replicate: "{{ .Values.global.tokenstore.self_replicate }}" # Set to 'false' when using single instance or external Replication server. Acccepted values 'true' or 'false'
+  serviceName: "{{ .Values.global.serviceNameTS }}"
+  threshold_disk_full: "5gb"
+  threshold_disk_low: "10gb"
+aps:
+  backup_backend: "true"
+  backup_before_upgrade: "true"
+  backup_frequency: "daily"
+  cert_alias: "aps"
+  configmapName: "{{ .Values.global.baseNameAPS }}-{{ .Values.global.clusterId }}"
+  disable_insecure_comms: "true"
+  dn_admin: "cn=root user"
+  dn_base: "ou=am-config" # for instance "ou=am-config"
+  ds_type: "aps"
+  load_custom_ds_config: "true"
+  load_custom_java_props: "true"
+  load_schema: "false"
+  log_mode: "file"
+  podName: "{{ .Values.global.baseNameAPS }}-{{ .Values.global.clusterId }}"
+  port_admin: "4444"
+  port_http: "8080"
+  port_https: "8443"
+  port_ldap: "1389"
+  port_ldaps: "1636"
+  port_replication: "8991"
+  protocol_rest: "https"
+  replication_admin_uid: "admin"
+  rs_list_intra_cluster: "{{ tpl .Values.replserver.aps.rsSvcUrl1_intra . }}:{{ .Values.replserver.aps.port_replication }},{{ tpl .Values.replserver.aps.rsSvcUrl2_intra . }}:{{ .Values.replserver.aps.port_replication }},{{ tpl .Values.replserver.aps.rsSvcUrl3_intra . }}:{{ .Values.replserver.aps.port_replication }}"
+  self_replicate: "{{ .Values.global.aps.self_replicate }}" # Set to 'false' when using single instance or external Replication server. Acccepted values 'true' or 'false'
+  serviceName: "{{ .Values.global.serviceNameAPS }}"
+  threshold_disk_full: "5gb"
+  threshold_disk_low: "10gb"

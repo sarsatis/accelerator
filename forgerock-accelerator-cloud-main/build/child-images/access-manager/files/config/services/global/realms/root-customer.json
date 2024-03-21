@@ -1,0 +1,24 @@
+{
+  "metadata" : {
+    "realm" : "/Customer",
+    "entityType" : "",
+    "entityId" : "L0N1c3RvbWVy",
+    "uid" : "o=Customer,ou=services,ou=am-config",
+    "sunServiceID" : null,
+    "objectClass" : [ "sunRealmService", "top" ],
+    "pathParams" : { },
+    "ou" : [ ]
+  },
+  "data" : {
+    "_id" : "root-Customer",
+    "_type" : {
+      "_id" : "",
+      "name" : "",
+      "collection" : false
+    },
+    "parentPath" : "/",
+    "active" : true,
+    "name" : "Customer",
+    "aliases" : [ "" ]
+  }
+}

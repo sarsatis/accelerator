@@ -1,0 +1,66 @@
+suite: IG ConfigMap tests
+templates:
+  - ../templates/configs-ig-env.yaml
+tests:
+  - it: Check deploy.yaml values
+    values:
+      - ../../../values.yaml
+
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - isAPIVersion:
+          of: v1
+      - exists:
+          path: data.CERT_ALIAS
+      - isNotNullOrEmpty:
+          path: data.CERT_ALIAS
+      - exists:
+          path: data.ENV_TYPE
+      - isNotNullOrEmpty:
+          path: data.ENV_TYPE
+      - exists:
+          path: data.IG_MODE
+      - isNotNullOrEmpty:
+          path: data.IG_MODE
+      - exists:
+          path: data.IG_TYPE
+      - isNotNullOrEmpty:
+          path: data.IG_TYPE
+      - exists:
+          path: data.IG_URI
+      - isNotNullOrEmpty:
+          path: data.IG_URI
+      - exists:
+          path: data.JAVA_OPTS
+      - isNotNullOrEmpty:
+          path: data.JAVA_OPTS
+      - exists:
+          path: data.LB_DOMAIN
+      - isNotNullOrEmpty:
+          path: data.LB_DOMAIN
+      - exists:
+          path: data.NAMESPACE
+      - isNotNullOrEmpty:
+          path: data.NAMESPACE
+      - exists:
+          path: data.POD_NAMESPACE
+      - isNotNullOrEmpty:
+          path: data.POD_NAMESPACE
+      - exists:
+          path: data.PORT_HTTP
+      - isNotNullOrEmpty:
+          path: data.PORT_HTTP
+      - exists:
+          path: data.PORT_HTTPS
+      - isNotNullOrEmpty:
+          path: data.PORT_HTTPS
+      - exists:
+          path: data.ROUTES
+      - isNotNullOrEmpty:
+          path: data.ROUTES
+      - exists:
+          path: data.SECRETS_MODE
+      - isNotNullOrEmpty:
+          path: data.SECRETS_MODE
+    

@@ -1,0 +1,16 @@
+extends layout
+
+block content
+  div.section
+    h4 ERROR SUMMARY
+    p= error.message
+    if error.stdout
+      div
+      h4 STDOUT
+      p= error.stdout
+    if error.stdout
+      div
+      h4 STDERR
+      pre #{error.stderr}
+    if error.stack
+      pre #{error.stack}

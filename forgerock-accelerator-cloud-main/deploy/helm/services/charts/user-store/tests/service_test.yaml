@@ -1,0 +1,117 @@
+suite: US Service tests
+templates:
+  - ../templates/service.yaml
+tests:
+  - it: Check deploy.yaml values
+    values:
+      - ../values.yaml
+      - ../../../values.yaml
+
+    asserts:
+      - isKind:
+          of: Service
+      - isAPIVersion:
+          of: v1
+      - equal:
+          path: spec.ports[0].name
+          value: ldap
+        documentIndex: 0
+      - equal:
+          path: spec.ports[0].port
+          value: 1389
+        documentIndex: 0
+      - equal:
+          path: spec.ports[0].targetPort
+          value: 1389
+        documentIndex: 0
+      - equal:
+          path: spec.ports[0].protocol
+          value: TCP
+        documentIndex: 0
+      - equal:
+          path: spec.ports[1].name
+          value: ldaps
+        documentIndex: 0
+      - equal:
+          path: spec.ports[1].port
+          value: 1636
+        documentIndex: 0
+      - equal:
+          path: spec.ports[1].targetPort
+          value: 1636
+        documentIndex: 0
+      - equal:
+          path: spec.ports[1].protocol
+          value: TCP
+        documentIndex: 0
+
+
+
+
+      - equal:
+          path: spec.ports[2].name
+          value: http
+        documentIndex: 0
+      - equal:
+          path: spec.ports[2].port
+          value: 8080
+        documentIndex: 0
+      - equal:
+          path: spec.ports[2].targetPort
+          value: 8080
+        documentIndex: 0
+      - equal:
+          path: spec.ports[2].protocol
+          value: TCP
+        documentIndex: 0
+      - equal:
+          path: spec.ports[3].name
+          value: https
+        documentIndex: 0
+      - equal:
+          path: spec.ports[3].port
+          value: 8443
+        documentIndex: 0
+      - equal:
+          path: spec.ports[3].targetPort
+          value: 8443
+        documentIndex: 0
+      - equal:
+          path: spec.ports[3].protocol
+          value: TCP
+        documentIndex: 0
+
+
+
+      - equal:
+          path: spec.ports[4].name
+          value: admin
+        documentIndex: 0
+      - equal:
+          path: spec.ports[4].port
+          value: 4444
+        documentIndex: 0
+      - equal:
+          path: spec.ports[4].targetPort
+          value: 4444
+        documentIndex: 0
+      - equal:
+          path: spec.ports[4].protocol
+          value: TCP
+        documentIndex: 0
+      - equal:
+          path: spec.ports[5].name
+          value: replication
+        documentIndex: 0
+      - equal:
+          path: spec.ports[5].port
+          value: 8989
+        documentIndex: 0
+      - equal:
+          path: spec.ports[5].targetPort
+          value: 8989
+        documentIndex: 0
+      - equal:
+          path: spec.ports[5].protocol
+          value: TCP
+        documentIndex: 0

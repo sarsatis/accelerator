@@ -1,0 +1,66 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values. 
+# ========================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ tpl .Values.aps.configmapName . }}"
+  namespace: "{{ .Values.global.namespace }}"
+  labels:
+    deploymentTime: {{ now | date "20060102T150405" | quote }}
+data:
+  BACKUP_BACKEND: "{{ .Values.aps.backup_backend }}"
+  BACKUP_BEFORE_UPGRADE: "{{ .Values.aps.backup_before_upgrade }}"
+  BACKUP_FREQUENCY: "{{ .Values.aps.backup_frequency }}"
+  CERT_ALIAS: "{{ .Values.aps.cert_alias }}"
+  CLUSTER_DOMAIN: "{{ .Values.global.clusterDomain }}"
+  DISABLE_INSECURE_COMMS: "{{ .Values.aps.disable_insecure_comms }}"
+  DN_ADMIN: "{{ .Values.aps.dn_admin }}"
+  DN_BASE: "{{ .Values.aps.dn_base }}"
+  DS_TYPE: "{{ .Values.aps.ds_type }}"
+  ENV_TYPE: "{{ .Values.global.envType }}"
+  LOAD_CUSTOM_DS_CONFIG: "{{ .Values.aps.load_custom_ds_config }}"
+  LOAD_CUSTOM_JAVA_PROPS: "{{ .Values.aps.load_custom_java_props }}"
+  LOAD_SCHEMA: "{{ .Values.aps.load_schema }}"
+  LOG_MODE: "{{ .Values.aps.log_mode }}"
+  NOTIFICATION_EMAIL: "{{ .Values.global.notificationEmail }}"
+  POD_BASENAME: "{{ tpl .Values.aps.podName . }}"
+  POD_NAMESPACE: "{{ .Values.global.namespace }}"
+  POD_SERVICE_NAME: "{{ tpl .Values.aps.serviceName . }}"
+  PORT_ADMIN: "{{ .Values.aps.port_admin }}"
+  PORT_HTTP: "{{ .Values.aps.port_http }}"
+  PORT_HTTPS: "{{ .Values.aps.port_https }}"
+  PORT_LDAP: "{{ .Values.aps.port_ldap }}"
+  PORT_LDAPS: "{{ .Values.aps.port_ldaps }}"
+  PORT_REPLICATION: "{{ .Values.aps.port_replication }}"
+  PORT_REST: "{{ tpl .Values.aps.port_https . }}"
+  PROTOCOL_REST: "{{ tpl .Values.aps.protocol_rest . }}"
+  REPLICATION_ADMIN_UID: "{{ .Values.aps.replication_admin_uid }}"
+  RS_LIST_INTRA_CLUSTER: "{{ tpl .Values.aps.rs_list_intra_cluster . }}"
+  SECRETS_MANAGER_BASE_URL: "{{ .Values.global.secretsmanager.url }}"
+  SECRETS_MANAGER_PATH_APS: "{{ .Values.global.secretsmanager.aps_path }}"
+  SECRETS_MANAGER_PATH_RS: "{{ .Values.global.secretsmanager.rs_path }}"
+  SECRETS_MANAGER_PATH_TS: "{{ .Values.global.secretsmanager.ts_path }}"
+  SECRETS_MANAGER_PATH_US: "{{ .Values.global.secretsmanager.us_path }}"
+  SECRETS_MANAGER_TOKEN: "{{ .Values.global.secretsmanager.token }}"
+  SECRETS_MODE: "{{ .Values.global.secretsMode }}" 
+  SELF_REPLICATE: "{{ tpl .Values.aps.self_replicate . }}"
+  THRESHOLD_DISK_FULL: "{{ .Values.aps.threshold_disk_full }}"
+  THRESHOLD_DISK_LOW: "{{ .Values.aps.threshold_disk_low }}"

@@ -1,0 +1,116 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+replserver:
+  image: "{{ .Values.global.registryURL }}/forgerock-repl-server:{{ .Values.global.imageTag }}"
+  aps:
+    podName: "{{ .Values.global.baseNameRS }}-aps-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-aps-{{ .Values.global.clusterId2 }}"
+    serviceName: "{{ .Values.global.serviceNameRS }}-aps"
+    replicas: 2
+    pvcSize: 20Gi
+    portHttp: "8080"
+    portHttps: "8443"
+    portLdap: "1389"
+    portLdaps: "1636"
+    portAdmin: "4444"
+    port_replication: "8989"
+    hostAliases_ip1: ""
+    hostAliases_ip2: ""
+    hostAliases_ip3: ""
+    secretName: "{{ .Values.global.baseNameRS }}-{{ .Values.global.clusterId }}"
+    configmapName: "{{ tpl .Values.replserver.aps.podName . }}"
+  ts:
+    podName: "{{ .Values.global.baseNameRS }}-ts-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-ts-{{ .Values.global.clusterId2 }}"
+    serviceName: "{{ .Values.global.serviceNameRS }}-ts"
+    replicas: 2
+    pvcSize: 20Gi
+    portHttp: "8080"
+    portHttps: "8443"
+    portLdap: "1389"
+    portLdaps: "1636"
+    portAdmin: "4444"
+    port_replication: "8989"
+    hostAliases_ip1: ""
+    hostAliases_ip2: ""
+    hostAliases_ip3: ""
+    secretName: "{{ .Values.global.baseNameRS }}-{{ .Values.global.clusterId }}"
+    configmapName: "{{ tpl .Values.replserver.ts.podName . }}"
+    hostAliases_hostname1: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-0.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    hostAliases_hostname2: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-1.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    hostAliases_hostname3: "{{ tpl .Values.replserver.ts.podNameDc2 . }}-2.{{ tpl .Values.replserver.ts.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  us:
+    podName: "{{ .Values.global.baseNameRS }}-us-{{ .Values.global.clusterId }}"
+    podNameDc2: "{{ .Values.global.baseNameRS }}-us-{{ .Values.global.clusterId2 }}"
+    serviceName: "{{ .Values.global.serviceNameRS }}-us"
+    replicas: 2
+    globalReplOn: "false"
+    pvcSize: 20Gi
+    portHttp: "8080"
+    portHttps: "8443"
+    portLdap: "1389"
+    portLdaps: "1636"
+    portAdmin: "4444"
+    port_replication: "8989"
+    hostAliases_ip1: ""
+    hostAliases_ip2: ""
+    hostAliases_ip3: ""
+    secretName: "{{ .Values.global.baseNameRS }}-{{ .Values.global.clusterId }}"
+    configmapName: "{{ tpl .Values.replserver.us.podName . }}"
+    hostAliases_hostname1: "{{ tpl .Values.replserver.us.podNameDc2 . }}-0.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    hostAliases_hostname2: "{{ tpl .Values.replserver.us.podNameDc2 . }}-1.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+    hostAliases_hostname3: "{{ tpl .Values.replserver.us.podNameDc2 . }}-2.{{ tpl .Values.replserver.us.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+tokenstore:
+  podName: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId }}"
+  podNameDc2: "{{ .Values.global.baseNameTS }}-{{ .Values.global.clusterId2 }}"
+  serviceName: "{{ .Values.global.serviceNameTS }}"
+  hostAliases_ip1: ""
+  hostAliases_ip2: ""
+  hostAliases_ip3: ""
+  secretName: "{{ tpl .Values.tokenstore.podName . }}"
+  configmapName: "{{ tpl .Values.tokenstore.podName . }}"
+  hostAliases_hostname1: "{{ tpl .Values.tokenstore.podNameDc2 . }}-0.{{ tpl .Values.tokenstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname2: "{{ tpl .Values.tokenstore.podNameDc2 . }}-1.{{ tpl .Values.tokenstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname3: "{{ tpl .Values.tokenstore.podNameDc2 . }}-2.{{ tpl .Values.tokenstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+userstore:
+  podName: "{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId }}"
+  podNameDc2: "{{ .Values.global.baseNameUS }}-{{ .Values.global.clusterId2 }}"
+  serviceName: "{{ .Values.global.serviceNameUS }}"
+  hostAliases_ip1: ""
+  hostAliases_ip2: ""
+  hostAliases_ip3: ""
+  secretName: "{{ tpl .Values.userstore.podName . }}"
+  configmapName: "{{ tpl .Values.userstore.podName . }}"
+  hostAliases_hostname1: "{{ tpl .Values.userstore.podNameDc2 . }}-0.{{ tpl .Values.userstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname2: "{{ tpl .Values.userstore.podNameDc2 . }}-1.{{ tpl .Values.userstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname3: "{{ tpl .Values.userstore.podNameDc2 . }}-2.{{ tpl .Values.userstore.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+aps:
+  podName: "{{ .Values.global.baseNameAPS }}-{{ .Values.global.clusterId }}"
+  podNameDc2: "{{ .Values.global.baseNameAPS }}-{{ .Values.global.clusterId2 }}"
+  serviceName: "{{ .Values.global.serviceNameAPS }}"
+  hostAliases_ip1: ""
+  hostAliases_ip2: ""
+  hostAliases_ip3: ""
+  secretName: "{{ tpl .Values.aps.podName . }}"
+  configmapName: "{{ tpl .Values.aps.podName . }}"
+  hostAliases_hostname1: "{{ tpl .Values.aps.podNameDc2 . }}-0.{{ tpl .Values.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname2: "{{ tpl .Values.aps.podNameDc2 . }}-1.{{ tpl .Values.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}"
+  hostAliases_hostname3: "{{ tpl .Values.aps.podNameDc2 . }}-2.{{ tpl .Values.aps.serviceName . }}.{{ .Values.global.namespace }}.svc.{{ .Values.global.clusterDomain }}" 

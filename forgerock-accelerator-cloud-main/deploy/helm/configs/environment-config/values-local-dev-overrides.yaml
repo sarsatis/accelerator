@@ -1,0 +1,7 @@
+global:
+  userstore:
+    self_replicate: true
+  tokenstore:
+    self_replicate: true
+  aps:
+    self_replicate: true

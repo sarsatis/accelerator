@@ -1,0 +1,92 @@
+# ========================================================================
+# MIDSHIPS
+# COPYRIGHT 2023
+
+# Legal Notice:
+# Installation and use of this script is subject to a license agreement
+# with Midships Limited (a company registered in England, under company
+# registration number: 11324587). This script cannot be modified or
+# shared with another organisation unless approved in writing by Midships
+# Limited. You as a user of this script must review, accept and comply
+# with the license terms of each downloaded/installed package that is
+# referenced by this script. By proceeding with the installation, you are
+# accepting the license terms of each package, and acknowledging that your
+# use of each package will be subject to its respective license terms.
+# For more information visit www.midships.io
+
+# NOTE:
+# Don't check this file into source control with any sensitive hard
+# coded values.
+# ========================================================================
+global:
+  namespace: "forgerock"
+  clusterId: "dc1"
+  clusterId2: "dc2"
+  clusterDomain: "cluster.local"
+  registryURL: "gcr.io/massive-dynamo-235117"
+  imageTag: "stable"
+  envType: "dev"
+  secretsMode: "volume"
+  k8sLocation: "gcp"
+  imgPullSecrets: "fr-nexus-docker"
+  imgPullPolicy: "Always"
+  podManagementPolicy: "Parallel"
+  baseNameUS: "forgerock-user-store"
+  baseNameTS: "forgerock-token-store"
+  baseNameRS: "forgerock-repl-server"
+  baseNameAPS: "forgerock-app-policy-store"
+  baseNameIDM: "forgerock-idm"
+  baseNameIG: "forgerock-ig"
+  baseNameAM: "forgerock-access-manager"
+  baseNameFACT: "midships-fact"
+  serviceNameUS: "forgerock-user-store"
+  serviceNameTS: "forgerock-token-store"
+  serviceNameRS: "forgerock-repl-server"
+  serviceNameAPS: "forgerock-app-policy-store"
+  serviceNameIDM: "forgerock-idm"
+  serviceNameIG: "forgerock-ig"
+  serviceNameAM: "forgerock-access-manager"
+  secretsmanager:
+    url: " "
+    token: " "
+    rs_path: " "
+    ts_path: " "
+    us_path: " "
+    aps_path: " "
+  # Demo
+  am:
+    cpu: "2000m"
+    memory: "4Gi"
+  fact:
+    cpu: "1000m"
+    memory: "2Gi"
+  us:
+    cpu: "1000m"
+    memory: "4Gi"
+  ts:
+    cpu: "1000m"
+    memory: "4Gi"
+  aps:
+    cpu: "1000m"
+    memory: "4Gi"
+  rs:
+    cpu: "1000m"
+    memory: "4Gi"
+  ig:
+    cpu: "1000m"
+    memory: "4Gi"
+  idm:
+    cpu: "1000m"
+    memory: "4Gi"
+  # Dev
+  # amCPU: "1000m"
+  # amMemory: "4Gi"
+  # factCPU: "500m"
+  # factMemory: "1Gi"
+  # dsCPU: "750m"
+  # dsMemory: "2Gi"
+  # idmCPU: "750m"
+  # idmMemory: "2Gi"
+  # igCPU: "500m"
+  # igMemory: "2Gi"
+  
